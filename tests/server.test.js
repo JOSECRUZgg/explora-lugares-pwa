@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { rm } from 'node:fs/promises';
 
 test('servidor PWA: catálogo, SSR, reseñas y VAPID', async () => {
   const port = await new Promise(resolve => {
@@ -10,7 +13,8 @@ test('servidor PWA: catálogo, SSR, reseñas y VAPID', async () => {
       server.close(() => resolve(number));
     });
   });
-  const child = spawn(process.execPath, ['server.js'], { cwd: new URL('..', import.meta.url), env: { ...process.env, PORT: String(port) }, stdio: 'ignore' });
+  const reviewsFile = join(tmpdir(), 'explora-reviews-' + crypto.randomUUID() + '.json');
+  const child = spawn(process.execPath, ['server.js'], { cwd: new URL('..', import.meta.url), env: { ...process.env, PORT: String(port), REVIEWS_FILE: reviewsFile }, stdio: 'ignore' });
   const base = 'http://127.0.0.1:' + port;
   try {
     let ready = false;
@@ -42,5 +46,6 @@ test('servidor PWA: catálogo, SSR, reseñas y VAPID', async () => {
     assert.equal(unknown.status, 404);
   } finally {
     child.kill();
+    await rm(reviewsFile, { force: true });
   }
 });

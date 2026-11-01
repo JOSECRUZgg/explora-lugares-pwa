@@ -3,28 +3,35 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#14532d">
-  <meta name="description" content="Explora lugares interesantes, incluso sin conexión.">
+  <meta name="theme-color" content="#173b32">
+  <meta name="description" content="Descubre lugares interesantes, guarda reseñas y explora incluso sin conexión.">
   <title>Explora Lugares</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./icons/icon-192.png">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div id="splash" class="splash" aria-hidden="true"><span>EL</span><strong>Explora Lugares</strong></div>
-  <header class="header">
-    <a class="brand" href="#/">📍 Explora Lugares</a>
-    <span id="connection" role="status">Comprobando conexión…</span>
+  <div id="splash" class="splash" aria-hidden="true"><span class="splash-mark">EL</span><strong>Explora Lugares</strong></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#/" aria-label="Explora Lugares, inicio">
+        <span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.6 7-12a7 7 0 1 0-14 0c0 6.4 7 12 7 12Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="9" r="2.5" fill="currentColor"/></svg></span>
+        <span>Explora <strong>Lugares</strong></span>
+      </a>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a href="#/" data-nav="inicio">Inicio</a>
+        <a href="#/catalogo" data-nav="catalogo">Lugares</a>
+        <a href="#/cerca" data-nav="cerca">Cerca de mí</a>
+      </nav>
+      <span id="connection" class="connection" role="status">Comprobando conexión…</span>
+    </div>
   </header>
   <main id="app" class="container" tabindex="-1">
     <h1>Lugares para descubrir</h1>
     <p>Consulta lugares y reseñas desde tu teléfono.</p>
   </main>
-  <nav class="bottom-nav" aria-label="Navegación principal">
-    <a href="#/">Inicio</a><a href="#/catalogo">Lugares</a><a href="#/cerca">Cerca de mí</a>
-  </nav>
+  <footer class="site-footer"><span>Explora Lugares</span><span>Tu próxima parada empieza aquí.</span></footer>
   <div id="toast" role="status" aria-live="polite"></div>
   <script type="module" src="./app.js"></script>
 </body>
 </html>
-

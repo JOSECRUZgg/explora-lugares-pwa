@@ -26,6 +26,11 @@ Estado general: implementación completa en código; validación funcional y bac
 | P11 | Ubicación | Permitir ubicación en «Cerca de mí» | Lugares ordenados por distancia | Pendiente de prueba manual |
 | P12 | Actualización | Publicar versión nueva y recargar | Aviso «Actualizar» | Navegador: pasó |
 | P13 | Publicación | Abrir GitHub Pages | Inicio y catálogo visibles | Navegador: pasó |
+| P14 | Diseño escritorio | Abrir inicio y catálogo a 1280 px | Cabecera, portada, tarjetas y controles legibles | Navegador local: pasó |
+| P15 | Diseño móvil | Abrir inicio y catálogo a 375 px | Navegación visible y sin desplazamiento horizontal | Navegador local: pasó |
+| P16 | Diseño intermedio | Abrir ficha a 768 px | Sin desplazamiento horizontal y navegación de 44 px | Navegador local: pasó |
+| P17 | Ficha SSR visual | Abrir /lugar/plaza-centro en servidor local | Ficha y reseñas hidratadas con el nuevo diseño | Navegador local: pasó |
+| P18 | Página offline visual | Abrir offline.html directamente | Mensaje y regreso al inicio legibles | Navegador local: pasó; red offline aún pendiente |
 
 Ejecutar pruebas automáticas: npm test.
 En navegadores sin Background Sync, el envío pendiente también se intenta al volver la conexión o abrir la app.
@@ -67,3 +72,11 @@ GitHub Pages solo sirve archivos estáticos. La ficha SSR, el envío de reseñas
 4. Desplegar la API Node.js en HTTPS, conectarla a la versión de Pages y comprobar SSR, reseñas y push reales.
 5. Probar geolocalización con permiso del usuario y documentar evidencia.
 6. Repetir las pruebas P07–P11 y registrar resultados observados, navegador y fecha.
+
+## Mejora visual · 1 de noviembre de 2026
+
+Se rediseñaron el inicio, el catálogo, la ficha, la página offline y la navegación. La portada tiene una llamada principal al catálogo y un mapa decorativo hecho con CSS; las tarjetas usan tres tonos y muestran nombre, descripción y tiempo sugerido. Las preferencias y notificaciones quedaron en una sección secundaria. En móvil, la navegación permanece accesible al pie; en escritorio se integra en la cabecera. La ficha SSR comparte el diseño de la vista CSR y conserva la hidratación de reseñas.
+
+Los elementos visuales usan CSS y SVG local, por lo que no requieren recursos externos para aparecer sin conexión. Se añadieron estados de foco visibles, áreas de navegación de 44 px, espacio para la barra móvil y ajuste para movimiento reducido. La actualización incrementó la versión del service worker para renovar el shell.
+
+Verificación visual en navegador local: portada y catálogo a 1280 px; portada y catálogo a 375 px; ficha a 768 px; ficha SSR con reseñas hidratadas; página offline abierta directamente. A 375 px, el documento midió 360 px de ancho desplazable frente a 375 px de ventana. A 768 px midió 753 px frente a 768 px. En ambos tamaños los enlaces de navegación midieron 44 px de alto. Estas pruebas no sustituyen P07–P11, que siguen pendientes.

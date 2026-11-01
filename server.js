@@ -7,7 +7,7 @@ const root = resolve(import.meta.dirname, 'public');
 const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const port = Number(process.env.PORT || 3000);
 try { process.loadEnvFile(resolve(import.meta.dirname, '.env')); } catch {}
-const reviewsFile = resolve(import.meta.dirname, 'data/reviews.json');
+const reviewsFile = process.env.REVIEWS_FILE || resolve(import.meta.dirname, 'data/reviews.json');
 const subscriptionsFile = resolve(import.meta.dirname, 'data/subscriptions.json');
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails('mailto:admin@example.com', process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
@@ -105,7 +105,10 @@ createServer(async (req, res) => {
       const place = places.find(item => item.id === id);
       if (!place) throw new Error('No encontrada');
       const shell = await readFile(resolve(root, 'index.html'), 'utf8');
-      const detail = '<article class="card" data-ssr-place="' + esc(place.id) + '"><h1>' + esc(place.name) + '</h1><p>' + esc(place.description) + '</p><p>Tiempo sugerido: ' + esc(place.duration) + '</p><div id="hydrated-detail"></div></article>';
+      const detail = '<a class="back-link" href="#/catalogo">← Volver a lugares</a><div class="detail-layout">' +
+        '<article class="detail-card" data-ssr-place="' + esc(place.id) + '"><div class="detail-cover" aria-hidden="true"><span class="art-symbol">' + esc(place.name.charAt(0)) + '</span></div>' +
+        '<div class="detail-content"><span class="eyebrow">Ficha del lugar</span><h1>' + esc(place.name) + '</h1><p>' + esc(place.description) + '</p><span class="detail-meta">Tiempo sugerido: ' + esc(place.duration) + '</span></div></article>' +
+        '<div id="hydrated-detail"></div></div>';
       const html = shell.replace(/<h1>Lugares para descubrir<\/h1>\s*<p>Consulta lugares y reseñas desde tu teléfono\.<\/p>/, '').replace('<head>', '<head><base href="/">').replace('<main id="app" class="container" tabindex="-1">', '<main id="app" class="container" tabindex="-1">' + detail).replace('<title>Explora Lugares</title>', '<title>' + esc(place.name) + ' · Explora Lugares</title>');
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       return res.end(html);

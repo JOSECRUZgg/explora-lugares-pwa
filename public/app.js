@@ -35,25 +35,53 @@ async function catalog() {
     }
   }
 }
+function placeCard(place, index, note) {
+  const tone = ['clay', 'sage', 'sky'][index % 3];
+  return '<a class="place-card" href="#/lugar/' + encodeURIComponent(place.id) + '">' +
+    '<div class="card-art tone-' + tone + '" aria-hidden="true"><span class="art-symbol">' + escapeHtml(place.name.charAt(0)) + '</span></div>' +
+    '<div class="card-body"><span class="eyebrow">Lugar ' + String(index + 1).padStart(2, '0') + '</span>' +
+    '<h3>' + escapeHtml(place.name) + '</h3><p>' + escapeHtml(place.description) + '</p>' +
+    '<div class="card-bottom"><span>' + escapeHtml(note || place.duration) + '</span><span class="card-arrow" aria-hidden="true">↗</span></div></div></a>';
+}
 function render() {
+  const [, page, id] = location.hash.split('/');
+  const navPage = document.querySelector('[data-ssr-place]') && !page ? 'catalogo' : page;
+  document.querySelectorAll('[data-nav]').forEach(link => {
+    if (link.dataset.nav === (navPage === 'catalogo' ? 'catalogo' : navPage === 'cerca' ? 'cerca' : 'inicio')) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  });
   if (document.querySelector('[data-ssr-place]') && !location.hash) {
     hydrateSSR();
     return;
   }
-  const [, page, id] = location.hash.split('/');
   if (page === 'catalogo') {
-    app.innerHTML = '<h1>Catálogo de lugares</h1><div class="grid">' + places.map(place =>
-      '<article class="card"><h2>' + escapeHtml(place.name) + '</h2><p>' + escapeHtml(place.description) + '</p><p class="muted">' + escapeHtml(place.duration) + '</p><a href="#/lugar/' + encodeURIComponent(place.id) + '">Ver ficha</a></article>'
-    ).join('') + '</div>';
+    app.innerHTML = '<div class="page-heading"><span class="eyebrow">Guía para explorar</span><h1>Encuentra tu próximo lugar.</h1><p>Una selección breve para descubrir a tu ritmo. Abre una ficha para ver detalles y dejar una reseña.</p></div>' +
+      '<div class="grid">' + places.map((place, index) => placeCard(place, index)).join('') + '</div>';
   } else if (page === 'lugar') {
     const place = places.find(item => item.id === id);
-    app.innerHTML = place ? '<article class="card"><h1>' + escapeHtml(place.name) + '</h1><p>' + escapeHtml(place.description) + '</p><p>Tiempo sugerido: ' + escapeHtml(place.duration) + '</p><a href="./lugar/' + encodeURIComponent(place.id) + '">Ver ficha SSR</a><h2>Reseñas</h2><div id="reviews"></div><form id="review-form" data-place="' + escapeHtml(place.id) + '"><label for="review-text">Tu reseña</label><textarea id="review-text" maxlength="500" required></textarea><button>Guardar reseña</button></form></article>' : '<h1>Lugar no encontrado</h1>';
+    app.innerHTML = place ? '<a class="back-link" href="#/catalogo">← Volver a lugares</a><div class="detail-layout">' +
+      '<article class="detail-card"><div class="detail-cover" aria-hidden="true"><span class="art-symbol">' + escapeHtml(place.name.charAt(0)) + '</span></div><div class="detail-content">' +
+      '<span class="eyebrow">Ficha del lugar</span><h1>' + escapeHtml(place.name) + '</h1><p>' + escapeHtml(place.description) + '</p><span class="detail-meta">Tiempo sugerido: ' + escapeHtml(place.duration) + '</span>' +
+      (location.hostname.endsWith('github.io') ? '' : '<p><a class="text-link" href="./lugar/' + encodeURIComponent(place.id) + '">Ver ficha SSR ↗</a></p>') +
+      '</div></article><section class="review-panel"><h2>Reseñas</h2><div id="reviews"></div><form id="review-form" data-place="' + escapeHtml(place.id) + '">' +
+      '<label for="review-text">Comparte tu experiencia</label><textarea id="review-text" maxlength="500" required placeholder="¿Qué te gustó de este lugar?"></textarea><button>Guardar reseña</button></form></section></div>'
+      : '<div class="page-heading"><h1>Lugar no encontrado</h1><a class="text-link" href="#/catalogo">Volver al catálogo</a></div>';
   } else if (page === 'cerca') {
-    app.innerHTML = '<h1>Cerca de mí</h1><p>Usamos tu ubicación solo cuando pulsas el botón.</p><button id="locate">Buscar lugares cercanos</button><div id="nearby"></div>';
+    app.innerHTML = '<div class="page-heading"><span class="eyebrow">Explora a tu alrededor</span><h1>Cerca de mí.</h1><p>Tu ubicación se usa solo cuando pulsas el botón y no se envía al servidor.</p><button id="locate">Buscar lugares cercanos</button></div><div id="nearby" class="nearby"></div>';
   } else {
-    app.innerHTML = '<section class="hero"><h1>Descubre nuevos lugares</h1><p>Lugares y reseñas a mano, incluso sin conexión.</p><a href="#/catalogo"><button>Explorar lugares</button></a> ' + (installPrompt ? '<button id="install">Instalar aplicación</button>' : '') + '</section><p><button id="notify-local">Probar notificación local</button> <button id="push-subscribe">Activar push</button></p><p><label><input id="compact" type="checkbox" ' + (localStorage.getItem('compact') === 'true' ? 'checked' : '') + '> Vista compacta</label></p>';
+    app.innerHTML = '<section class="hero"><div class="hero-copy"><p class="eyebrow">Tu guía de lugares</p><h1>Sal a descubrir algo nuevo.</h1>' +
+      '<p class="hero-lead">Encuentra sitios para visitar, consulta detalles y guarda tus reseñas. Tu guía también viaja contigo sin conexión.</p>' +
+      '<div class="hero-actions"><a class="button button-light" href="#/catalogo">Explorar lugares <span aria-hidden="true">↗</span></a>' +
+      '<a class="button button-outline" href="#/cerca">Cerca de mí</a>' +
+      (installPrompt ? '<button id="install" class="button-light">Instalar aplicación</button>' : '') + '</div></div>' +
+      '<div class="hero-art" aria-hidden="true"><div class="map-card"><div class="map-line"><span class="map-pin"><span>●</span></span></div><div class="map-card-caption"><span>UN LUGAR POR DESCUBRIR</span><span>↗</span></div></div><span class="hero-note">Explora a tu ritmo</span></div></section>' +
+      '<div class="feature-strip"><div><span>01</span> Catálogo disponible offline</div><div><span>02</span> Reseñas guardadas en tu dispositivo</div><div><span>03</span> Lugares cerca de ti</div></div>' +
+      '<section class="section-heading"><div><p class="eyebrow">Para empezar</p><h2>Elige tu próxima parada</h2><p>Tres ideas para salir de la rutina.</p></div><a class="text-link" href="#/catalogo">Ver todos los lugares ↗</a></section>' +
+      '<div class="grid">' + places.slice(0, 3).map((place, index) => placeCard(place, index)).join('') + '</div>' +
+      '<section class="utility-panel"><div><p class="eyebrow">Preferencias</p><h2>Haz tuya la experiencia</h2><p>Prueba avisos y ajusta cómo ves el catálogo.</p></div>' +
+      '<div class="utility-actions"><button id="notify-local" class="button-secondary">Notificación local</button><button id="push-subscribe" class="button-secondary">Activar push</button></div>' +
+      '<label class="compact-toggle"><input id="compact" type="checkbox" ' + (localStorage.getItem('compact') === 'true' ? 'checked' : '') + '> Vista compacta</label></section>';
   }
-  if (location.hostname.endsWith('github.io')) app.querySelector('a[href^="./lugar/"]')?.remove();
   if (page === 'lugar' && id) showReviews(id);
 }
 async function showReviews(id) {
@@ -62,15 +90,15 @@ async function showReviews(id) {
   const local = await localReviews(id);
   let remote = [];
   try { const response = await fetch('./api/reviews?placeId=' + encodeURIComponent(id)); if (response.ok) remote = await response.json(); } catch {}
-  node.innerHTML = [...local.map(item => ({...item, pending: true})), ...remote].map(item => '<p class="card">' + escapeHtml(item.text) + (item.pending ? ' <small>(pendiente de envío)</small>' : '') + '</p>').join('') || '<p>Aún no hay reseñas.</p>';
+  node.innerHTML = [...local.map(item => ({...item, pending: true})), ...remote].map(item => '<div class="review-card">' + escapeHtml(item.text) + (item.pending ? '<small>Pendiente de envío</small>' : '') + '</div>').join('') || '<p>Aún no hay reseñas.</p>';
 }
 function hydrateSSR() {
   const article = document.querySelector('[data-ssr-place]');
   if (!article) return;
-  const target = article.querySelector('#hydrated-detail');
+  const target = document.querySelector('#hydrated-detail');
   if (!target || target.dataset.ready) return;
   target.dataset.ready = 'true';
-  target.innerHTML = '<h2>Reseñas</h2><div id="reviews"></div><form id="review-form" data-place="' + escapeHtml(article.dataset.ssrPlace) + '"><label for="review-text">Tu reseña</label><textarea id="review-text" maxlength="500" required></textarea><button>Guardar reseña</button></form>';
+  target.innerHTML = '<section class="review-panel"><h2>Reseñas</h2><div id="reviews"></div><form id="review-form" data-place="' + escapeHtml(article.dataset.ssrPlace) + '"><label for="review-text">Comparte tu experiencia</label><textarea id="review-text" maxlength="500" required></textarea><button>Guardar reseña</button></form></section>';
   showReviews(article.dataset.ssrPlace);
 }
 document.addEventListener('click', async event => {
@@ -78,7 +106,7 @@ document.addEventListener('click', async event => {
   const target = document.querySelector('#nearby');
   try {
     const point = await getLocation();
-    target.innerHTML = '<div class="grid">' + places.map(place => ({...place, distance: distanceKm(point, {lat:place.lat, lon:place.lon})})).sort((a,b) => a.distance-b.distance).map(place => '<article class="card"><h2>' + escapeHtml(place.name) + '</h2><p>' + place.distance.toFixed(1) + ' km de tu ubicación</p><a href="#/lugar/' + encodeURIComponent(place.id) + '">Ver lugar</a></article>').join('') + '</div>';
+    target.innerHTML = '<div class="grid">' + places.map(place => ({...place, distance: distanceKm(point, {lat:place.lat, lon:place.lon})})).sort((a,b) => a.distance-b.distance).map((place, index) => placeCard(place, index, place.distance.toFixed(1) + ' km de tu ubicación')).join('') + '</div>';
   } catch (error) { target.textContent = error.message; }
 });
 document.addEventListener('submit', async event => {
@@ -126,7 +154,7 @@ if ('serviceWorker' in navigator) {
 function updateConnection() {
   const label = document.querySelector('#connection');
   label.textContent = navigator.onLine ? 'En línea' : 'Sin conexión';
-  label.style.color = navigator.onLine ? '#dcfce7' : '#fde68a';
+  label.classList.toggle('is-offline', !navigator.onLine);
 }
 window.addEventListener('online', updateConnection);
 window.addEventListener('offline', updateConnection);
