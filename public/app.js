@@ -53,6 +53,7 @@ function render() {
   } else {
     app.innerHTML = '<section class="hero"><h1>Descubre nuevos lugares</h1><p>Lugares y reseñas a mano, incluso sin conexión.</p><a href="#/catalogo"><button>Explorar lugares</button></a> ' + (installPrompt ? '<button id="install">Instalar aplicación</button>' : '') + '</section><p><button id="notify-local">Probar notificación local</button> <button id="push-subscribe">Activar push</button></p><p><label><input id="compact" type="checkbox" ' + (localStorage.getItem('compact') === 'true' ? 'checked' : '') + '> Vista compacta</label></p>';
   }
+  if (location.hostname.endsWith('github.io')) app.querySelector('a[href^="./lugar/"]')?.remove();
   if (page === 'lugar' && id) showReviews(id);
 }
 async function showReviews(id) {

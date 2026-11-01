@@ -10,10 +10,10 @@ export async function localNotification() {
 }
 export async function subscribePush() {
   if (!('PushManager' in window) || !('serviceWorker' in navigator)) throw new Error('Push no disponible');
-  if (await Notification.requestPermission() !== 'granted') throw new Error('Permiso denegado');
   const keyResponse = await fetch('./api/push/key');
   if (!keyResponse.ok) throw new Error('El servidor push no está disponible');
   const { publicKey } = await keyResponse.json();
+  if (await Notification.requestPermission() !== 'granted') throw new Error('Permiso denegado');
   const registration = await navigator.serviceWorker.ready;
   const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: decodeKey(publicKey) });
   const response = await fetch('./api/push/subscriptions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(subscription) });
