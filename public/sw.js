@@ -1,9 +1,9 @@
-const VERSION = 'v7';
+const VERSION = 'v8';
 const SHELL_CACHE = 'lugares-shell-' + VERSION;
 const DATA_CACHE = 'lugares-data-' + VERSION;
 const SHELL = ['./', './index.html', './styles.css', './app.js', './storage.js', './reviews.js', './notifications.js', './device.js', './manifest.json', './offline.html', './data/catalog.json', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL)));
+  event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL.map(path => new Request(new URL(path, self.location.href), { cache: 'reload' })))));
 });
 self.addEventListener('activate', event => {
   event.waitUntil(Promise.all([
@@ -78,3 +78,4 @@ self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil(self.clients.openWindow(event.notification.data?.url || './'));
 });
+
