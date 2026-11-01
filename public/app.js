@@ -80,7 +80,21 @@ catalog().then(data => { routes = data; render(); }).catch(() => {
   app.innerHTML = '<p class="notice">No se pudo cargar el catálogo. Reintenta cuando tengas conexión.</p>';
 });
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(console.error));
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('./sw.js');
+      const promptUpdate = () => {
+        if (!registration.waiting || !navigator.serviceWorker.controller) return;
+        document.querySelector('#toast').innerHTML = 'Hay una versión nueva. <button id="update">Actualizar</button>';
+      };
+      if (registration.waiting) promptUpdate();
+      registration.addEventListener('updatefound', () => registration.installing?.addEventListener('statechange', promptUpdate));
+      navigator.serviceWorker.addEventListener('controllerchange', () => location.reload());
+      document.addEventListener('click', event => {
+        if (event.target.id === 'update') registration.waiting?.postMessage('SKIP_WAITING');
+      });
+    } catch (error) { console.error(error); }
+  });
 }
 
 function updateConnection() {

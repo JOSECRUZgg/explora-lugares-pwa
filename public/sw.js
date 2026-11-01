@@ -1,4 +1,4 @@
-const VERSION = 'v2';
+const VERSION = 'v3';
 const SHELL_CACHE = 'sierra-shell-' + VERSION;
 const DATA_CACHE = 'sierra-data-' + VERSION;
 const SHELL = ['./', './index.html', './styles.css', './app.js', './storage.js', './reviews.js', './manifest.json', './offline.html', './data/catalog.json', './icons/icon-192.png', './icons/icon-512.png'];
@@ -6,7 +6,13 @@ self.addEventListener('install', event => {
   event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL)));
 });
 self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('sierra-') && ![SHELL_CACHE, DATA_CACHE].includes(key)).map(key => caches.delete(key)))));
+  event.waitUntil(Promise.all([
+    caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('sierra-') && ![SHELL_CACHE, DATA_CACHE].includes(key)).map(key => caches.delete(key)))),
+    self.clients.claim()
+  ]));
+});
+self.addEventListener('message', event => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 self.addEventListener('fetch', event => {
   const request = event.request;
