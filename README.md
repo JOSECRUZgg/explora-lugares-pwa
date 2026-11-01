@@ -5,7 +5,7 @@ Aplicación progresiva de lugares de tu región, creada en 14 fases con un commi
 ## Desarrollo
 
 Requiere Node.js 24 o superior. Ejecuta npm ci y npm start; abre http://localhost:3000.
-Para pruebas automáticas: npm test. El reporte y la tabla de casos están en REPORTE.md.
+Para pruebas automáticas: npm test. El reporte y la tabla de casos están en REPORTE.md y en REPORTE_EXPLORA_LUGARES.docx.
 
 Las claves VAPID y el token administrador se guardan en .env, que está ignorado por Git. La instalación local ya los genera. En otra máquina, genera claves con web-push y copia .env.example a .env.
 
