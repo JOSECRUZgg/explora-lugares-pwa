@@ -17,8 +17,10 @@ export async function sendPending() {
       await remove('reviews', review.id);
     } catch {
       if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.ready;
-        if ('sync' in registration) await registration.sync.register('send-reviews');
+        try {
+          const registration = await navigator.serviceWorker.getRegistration();
+          if (registration && 'sync' in registration) await registration.sync.register('send-reviews');
+        } catch {}
       }
       break;
     }

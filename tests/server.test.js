@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { rm } from 'node:fs/promises';
+import { readFile, rm } from 'node:fs/promises';
 
 test('servidor PWA: catálogo, SSR, reseñas y VAPID', async () => {
   const port = await new Promise(resolve => {
@@ -14,7 +14,8 @@ test('servidor PWA: catálogo, SSR, reseñas y VAPID', async () => {
     });
   });
   const reviewsFile = join(tmpdir(), 'explora-reviews-' + crypto.randomUUID() + '.json');
-  const child = spawn(process.execPath, ['server.js'], { cwd: new URL('..', import.meta.url), env: { ...process.env, PORT: String(port), REVIEWS_FILE: reviewsFile }, stdio: 'ignore' });
+  const subscriptionsFile = join(tmpdir(), 'explora-subscriptions-' + crypto.randomUUID() + '.json');
+  const child = spawn(process.execPath, ['server.js'], { cwd: new URL('..', import.meta.url), env: { ...process.env, PORT: String(port), REVIEWS_FILE: reviewsFile, SUBSCRIPTIONS_FILE: subscriptionsFile }, stdio: 'ignore' });
   const base = 'http://127.0.0.1:' + port;
   try {
     let ready = false;
@@ -35,6 +36,12 @@ test('servidor PWA: catálogo, SSR, reseñas y VAPID', async () => {
     assert.match(ssr, /<base href="\/">/);
     const key = await (await fetch(base + '/api/push/key')).json();
     assert.ok(key.publicKey);
+    const invalidSubscription = await fetch(base + '/api/push/subscriptions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    assert.equal(invalidSubscription.status, 400);
+    const subscription = { endpoint: 'https://example.com/push', keys: { p256dh: 'demo', auth: 'demo' } };
+    const subscribed = await fetch(base + '/api/push/subscriptions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(subscription) });
+    assert.equal(subscribed.status, 201);
+    assert.equal(JSON.parse(await readFile(subscriptionsFile, 'utf8'))[0].endpoint, subscription.endpoint);
     const review = { id: crypto.randomUUID(), placeId: catalog[0].id, text: 'Prueba automatizada' };
     const saved = await fetch(base + '/api/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(review) });
     assert.equal(saved.status, 201);
@@ -47,5 +54,6 @@ test('servidor PWA: catálogo, SSR, reseñas y VAPID', async () => {
   } finally {
     child.kill();
     await rm(reviewsFile, { force: true });
+    await rm(subscriptionsFile, { force: true });
   }
 });

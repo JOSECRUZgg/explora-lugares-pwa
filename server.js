@@ -8,7 +8,7 @@ const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascrip
 const port = Number(process.env.PORT || 3000);
 try { process.loadEnvFile(resolve(import.meta.dirname, '.env')); } catch {}
 const reviewsFile = process.env.REVIEWS_FILE || resolve(import.meta.dirname, 'data/reviews.json');
-const subscriptionsFile = resolve(import.meta.dirname, 'data/subscriptions.json');
+const subscriptionsFile = process.env.SUBSCRIPTIONS_FILE || resolve(import.meta.dirname, 'data/subscriptions.json');
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails('mailto:admin@example.com', process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
 }
