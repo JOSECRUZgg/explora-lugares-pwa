@@ -22,7 +22,38 @@ Fecha: 1 de noviembre de 2026.
 | P09 | Sync | Crear reseña offline y restablecer red | Se envía y desaparece «pendiente» | Pendiente de prueba manual |
 | P10 | Push | Suscribirse y enviar desde servidor | Notificación visible y abre app | Pendiente de prueba manual |
 | P11 | Ubicación | Permitir ubicación en «Cerca de mí» | Lugares ordenados por distancia | Pendiente de prueba manual |
-| P12 | Actualización | Publicar versión nueva y recargar | Aviso «Actualizar» | Pendiente de prueba manual |
+| P12 | Actualización | Publicar versión nueva y recargar | Aviso «Actualizar» | Navegador: pasó |
+
+| P13 | Publicación | Abrir GitHub Pages | Inicio y catálogo visibles | Navegador: pasó |
 
 Ejecutar pruebas automáticas: npm test.
 En navegadores sin Background Sync, el envío pendiente también se intenta al volver la conexión o abrir la app.
+
+## Desarrollo por fases
+
+| Fase | Entrega verificada |
+|---|---|
+| 0 | Proyecto Git independiente, Node.js, package.json, .gitignore y servidor mínimo |
+| 1 | Shell HTML y estilos adaptables |
+| 2 | Íconos PNG de 192 y 512 px y manifiesto instalable |
+| 3 | Registro y eventos install, activate y fetch del service worker |
+| 4 | Catálogo JSON, vistas CSR y ficha SSR servida por Node.js |
+| 5 | Splash visual, inicio y botón de instalación cuando el navegador lo ofrece |
+| 6 | Catálogo en IndexedDB y vista compacta en localStorage |
+| 7 | Caché de shell, datos y navegación; respaldo offline e indicador de conexión |
+| 8 | Reseñas locales, API y Background Sync con reintento al volver la red |
+| 9 | Aviso de actualización, skipWaiting y clients.claim |
+| 10 | Notificación local, suscripción push y VAPID con claves privadas fuera de Git |
+| 11 | Geolocalización, distancia a lugares e hidratación de la ficha SSR |
+| 12 | Pruebas automáticas y tabla de casos |
+| 13 | Repositorio público, workflow y publicación en GitHub Pages |
+
+Cada fase tiene al menos un commit en la rama main.
+
+## Publicación y alcance
+
+- Repositorio: https://github.com/JOSECRUZgg/explora-lugares-pwa
+- Aplicación: https://josecruzgg.github.io/explora-lugares-pwa/
+- Último despliegue comprobado: GitHub Actions completó con éxito; la página y el catálogo cargaron en navegador.
+
+GitHub Pages solo sirve archivos estáticos. La ficha SSR, el envío de reseñas y el envío push funcionan con server.js en un servidor Node.js; no están disponibles desde Pages sin desplegar esa API en un host HTTPS. Las reseñas escritas desde Pages se conservan localmente hasta disponer de ella. Las coordenadas del catálogo son datos de ejemplo.
