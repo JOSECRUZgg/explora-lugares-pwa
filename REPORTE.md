@@ -2,6 +2,8 @@
 
 Fecha: 1 de noviembre de 2026.
 
+Estado general: implementación completa en código; validación funcional y backend público pendientes.
+
 ## Herramientas
 - Node.js node --test para API y archivos servidos.
 - Chrome/Edge DevTools: Application (manifiesto, service worker, IndexedDB, Cache Storage), Network (modo offline) y Lighthouse.
@@ -23,15 +25,14 @@ Fecha: 1 de noviembre de 2026.
 | P10 | Push | Suscribirse y enviar desde servidor | Notificación visible y abre app | Pendiente de prueba manual |
 | P11 | Ubicación | Permitir ubicación en «Cerca de mí» | Lugares ordenados por distancia | Pendiente de prueba manual |
 | P12 | Actualización | Publicar versión nueva y recargar | Aviso «Actualizar» | Navegador: pasó |
-
 | P13 | Publicación | Abrir GitHub Pages | Inicio y catálogo visibles | Navegador: pasó |
 
 Ejecutar pruebas automáticas: npm test.
 En navegadores sin Background Sync, el envío pendiente también se intenta al volver la conexión o abrir la app.
 
-## Desarrollo por fases
+## Implementación por fases
 
-| Fase | Entrega verificada |
+| Fase | Implementación |
 |---|---|
 | 0 | Proyecto Git independiente, Node.js, package.json, .gitignore y servidor mínimo |
 | 1 | Shell HTML y estilos adaptables |
@@ -57,3 +58,12 @@ Cada fase tiene al menos un commit en la rama main.
 - Último despliegue comprobado: GitHub Actions completó con éxito; la página y el catálogo cargaron en navegador.
 
 GitHub Pages solo sirve archivos estáticos. La ficha SSR, el envío de reseñas y el envío push funcionan con server.js en un servidor Node.js; no están disponibles desde Pages sin desplegar esa API en un host HTTPS. Las reseñas escritas desde Pages se conservan localmente hasta disponer de ella. Las coordenadas del catálogo son datos de ejemplo.
+
+## Pendientes para cumplimiento total
+
+1. Probar instalación y splash del sistema en un navegador compatible.
+2. Probar navegación sin red con DevTools o un dispositivo real.
+3. Probar reseñas offline y Background Sync con un servidor accesible tras recuperar la red.
+4. Desplegar la API Node.js en HTTPS, conectarla a la versión de Pages y comprobar SSR, reseñas y push reales.
+5. Probar geolocalización con permiso del usuario y documentar evidencia.
+6. Repetir las pruebas P07–P11 y registrar resultados observados, navegador y fecha.
