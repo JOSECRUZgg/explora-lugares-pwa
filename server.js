@@ -60,14 +60,14 @@ createServer(async (req, res) => {
         res.writeHead(403); return res.end('No autorizado');
       }
       const saved = await subscriptions();
-      const results = await Promise.allSettled(saved.map(item => webpush.sendNotification(item, JSON.stringify({ title: 'Sierra Móvil', body: 'Consulta las novedades de tus rutas.', url: './' }))));
+      const results = await Promise.allSettled(saved.map(item => webpush.sendNotification(item, JSON.stringify({ title: 'Explora Lugares', body: 'Consulta las novedades de tus lugares.', url: './' }))));
       res.writeHead(200, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify({ sent: results.filter(item => item.status === 'fulfilled').length, total: saved.length }));
     }
     if (pathname === '/api/reviews' && req.method === 'GET') {
-      const routeId = new URL(req.url, 'http://localhost').searchParams.get('routeId');
+      const placeId = new URL(req.url, 'http://localhost').searchParams.get('placeId');
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-      return res.end(JSON.stringify((await reviews()).filter(item => item.routeId === routeId)));
+      return res.end(JSON.stringify((await reviews()).filter(item => item.placeId === placeId)));
     }
     if (pathname === '/api/reviews' && req.method === 'POST') {
       let body = '';
@@ -77,15 +77,15 @@ createServer(async (req, res) => {
       }
       let review;
       try { review = JSON.parse(body); } catch { res.writeHead(400); return res.end('JSON inválido'); }
-      if (!review || typeof review.id !== 'string' || !/^[0-9a-f-]{36}$/.test(review.id) || typeof review.routeId !== 'string' || typeof review.text !== 'string' || !review.text.trim() || review.text.length > 500) {
+      if (!review || typeof review.id !== 'string' || !/^[0-9a-f-]{36}$/.test(review.id) || typeof review.placeId !== 'string' || typeof review.text !== 'string' || !review.text.trim() || review.text.length > 500) {
         res.writeHead(400); return res.end('Reseña inválida');
       }
-      const routes = JSON.parse(await readFile(resolve(root, 'data/catalog.json'), 'utf8'));
-      if (!routes.some(item => item.id === review.routeId)) { res.writeHead(400); return res.end('Ruta inválida'); }
+      const places = JSON.parse(await readFile(resolve(root, 'data/catalog.json'), 'utf8'));
+      if (!places.some(item => item.id === review.placeId)) { res.writeHead(400); return res.end('Lugar inválido'); }
       writes = writes.then(async () => {
         const saved = await reviews();
         if (!saved.some(item => item.id === review.id)) {
-          saved.push({ id: review.id, routeId: review.routeId, text: review.text.trim(), createdAt: new Date().toISOString() });
+          saved.push({ id: review.id, placeId: review.placeId, text: review.text.trim(), createdAt: new Date().toISOString() });
           await mkdir(resolve(import.meta.dirname, 'data'), { recursive: true });
           await writeFile(reviewsFile, JSON.stringify(saved, null, 2));
         }
@@ -99,14 +99,14 @@ createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       return res.end(data);
     }
-    if (pathname.startsWith('/ruta/')) {
-      const id = pathname.slice(6);
-      const routes = JSON.parse(await readFile(resolve(root, 'data/catalog.json'), 'utf8'));
-      const route = routes.find(item => item.id === id);
-      if (!route) throw new Error('No encontrada');
+    if (pathname.startsWith('/lugar/')) {
+      const id = pathname.slice('/lugar/'.length);
+      const places = JSON.parse(await readFile(resolve(root, 'data/catalog.json'), 'utf8'));
+      const place = places.find(item => item.id === id);
+      if (!place) throw new Error('No encontrada');
       const shell = await readFile(resolve(root, 'index.html'), 'utf8');
-      const detail = '<article class="card" data-ssr-route="' + esc(route.id) + '"><h1>' + esc(route.name) + '</h1><p>' + esc(route.description) + '</p><p>Duración estimada: ' + esc(route.duration) + '</p><div id="hydrated-detail"></div></article>';
-      const html = shell.replace(/<h1>Rutas de la Sierra Gorda<\/h1>\s*<p>Consulta rutas, paradas y reseñas desde tu teléfono\.<\/p>/, '').replace('<head>', '<head><base href="/">').replace('<main id="app" class="container" tabindex="-1">', '<main id="app" class="container" tabindex="-1">' + detail).replace('<title>Sierra Móvil</title>', '<title>' + esc(route.name) + ' · Sierra Móvil</title>');
+      const detail = '<article class="card" data-ssr-place="' + esc(place.id) + '"><h1>' + esc(place.name) + '</h1><p>' + esc(place.description) + '</p><p>Tiempo sugerido: ' + esc(place.duration) + '</p><div id="hydrated-detail"></div></article>';
+      const html = shell.replace(/<h1>Lugares para descubrir<\/h1>\s*<p>Consulta lugares y reseñas desde tu teléfono\.<\/p>/, '').replace('<head>', '<head><base href="/">').replace('<main id="app" class="container" tabindex="-1">', '<main id="app" class="container" tabindex="-1">' + detail).replace('<title>Explora Lugares</title>', '<title>' + esc(place.name) + ' · Explora Lugares</title>');
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       return res.end(html);
     }

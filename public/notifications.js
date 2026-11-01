@@ -6,7 +6,7 @@ export async function localNotification() {
   if (!('Notification' in window) || !('serviceWorker' in navigator)) throw new Error('Notificaciones no disponibles');
   if (await Notification.requestPermission() !== 'granted') throw new Error('Permiso denegado');
   const registration = await navigator.serviceWorker.ready;
-  await registration.showNotification('Sierra Móvil', { body: 'Tus rutas están listas para consultar.', icon: './icons/icon-192.png' });
+  await registration.showNotification('Explora Lugares', { body: 'Tus lugares están listos para consultar.', icon: './icons/icon-192.png' });
 }
 export async function subscribePush() {
   if (!('PushManager' in window) || !('serviceWorker' in navigator)) throw new Error('Push no disponible');

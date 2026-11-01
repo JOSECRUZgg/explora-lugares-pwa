@@ -1,6 +1,6 @@
-# Sierra Móvil PWA
+# Explora Lugares PWA
 
-Aplicación progresiva de rutas de la Sierra Gorda, creada en 14 fases con un commit por fase.
+Aplicación progresiva de lugares de tu región, creada en 14 fases con un commit por fase.
 
 ## Desarrollo
 
@@ -12,7 +12,7 @@ Las claves VAPID y el token administrador se guardan en .env, que está ignorado
 ## Publicación
 
 GitHub Actions publica la carpeta public en GitHub Pages al subir cambios a main.
-La URL prevista es https://JOSECRUZgg.github.io/sierra-movil-pwa/.
+La URL pública se añadirá después de crear y configurar el repositorio GitHub.
 Después de actualizar el código del service worker, incrementa VERSION en public/sw.js para renovar la caché.
 
 GitHub Pages sirve el shell, el manifiesto, el catálogo estático, IndexedDB, navegación CSR, geolocalización, notificaciones locales y las vistas offline. Pages no ejecuta server.js: la ficha SSR, la API de reseñas, la sincronización hacia el servidor y el envío de push necesitan un servidor Node.js HTTPS aparte. El botón de suscripción push informa cuando esa API no está disponible. Las reseñas permanecen guardadas en IndexedDB hasta conectarse a un servidor con la API.

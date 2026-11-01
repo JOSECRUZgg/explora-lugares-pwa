@@ -1,4 +1,4 @@
-const DB = 'sierra-movil';
+const DB = 'explora-lugares';
 const open = () => new Promise((resolve, reject) => {
   const request = indexedDB.open(DB, 1);
   request.onupgradeneeded = () => {

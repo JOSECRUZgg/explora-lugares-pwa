@@ -1,7 +1,7 @@
 {
-  "name": "Sierra Móvil",
-  "short_name": "Sierra Móvil",
-  "description": "Rutas y paradas de la Sierra Gorda sin conexión",
+  "name": "Explora Lugares",
+  "short_name": "Explora Lugares",
+  "description": "Catálogo de lugares con reseñas y acceso sin conexión",
   "id": "./",
   "start_url": "./",
   "scope": "./",

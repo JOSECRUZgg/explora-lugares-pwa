@@ -1,13 +1,13 @@
 import { all, put, remove } from './storage.js';
 
-export async function saveReview(routeId, text) {
-  const review = { id: crypto.randomUUID(), routeId, text: text.trim().slice(0, 500), createdAt: new Date().toISOString() };
+export async function saveReview(placeId, text) {
+  const review = { id: crypto.randomUUID(), placeId, text: text.trim().slice(0, 500), createdAt: new Date().toISOString() };
   if (!review.text) throw new Error('Escribe una reseña');
   await put('reviews', review);
   await sendPending();
   return review;
 }
-export const localReviews = routeId => all('reviews').then(items => items.filter(item => item.routeId === routeId));
+export const localReviews = placeId => all('reviews').then(items => items.filter(item => item.placeId === placeId));
 export async function sendPending() {
   const pending = await all('reviews');
   for (const review of pending) {

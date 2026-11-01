@@ -1,13 +1,13 @@
-const VERSION = 'v5';
-const SHELL_CACHE = 'sierra-shell-' + VERSION;
-const DATA_CACHE = 'sierra-data-' + VERSION;
+const VERSION = 'v6';
+const SHELL_CACHE = 'lugares-shell-' + VERSION;
+const DATA_CACHE = 'lugares-data-' + VERSION;
 const SHELL = ['./', './index.html', './styles.css', './app.js', './storage.js', './reviews.js', './notifications.js', './device.js', './manifest.json', './offline.html', './data/catalog.json', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL)));
 });
 self.addEventListener('activate', event => {
   event.waitUntil(Promise.all([
-    caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('sierra-') && ![SHELL_CACHE, DATA_CACHE].includes(key)).map(key => caches.delete(key)))),
+    caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('lugares-') && ![SHELL_CACHE, DATA_CACHE].includes(key)).map(key => caches.delete(key)))),
     self.clients.claim()
   ]));
 });
@@ -42,7 +42,7 @@ self.addEventListener('sync', event => {
   if (event.tag !== 'send-reviews') return;
   event.waitUntil((async () => {
     const db = await new Promise((resolve, reject) => {
-      const request = indexedDB.open('sierra-movil', 1);
+      const request = indexedDB.open('explora-lugares', 1);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -68,7 +68,7 @@ self.addEventListener('sync', event => {
 self.addEventListener('push', event => {
   let data = {};
   try { data = event.data?.json() || {}; } catch {}
-  event.waitUntil(self.registration.showNotification(data.title || 'Sierra Móvil', {
+  event.waitUntil(self.registration.showNotification(data.title || 'Explora Lugares', {
     body: data.body || 'Tienes novedades.',
     icon: './icons/icon-192.png',
     data: { url: data.url || './' }

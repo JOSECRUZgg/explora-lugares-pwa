@@ -1,5 +1,26 @@
 [
-  {"id":"jalpan-xilitla","name":"Jalpan → Xilitla","origin":"Jalpan de Serra","destination":"Xilitla","description":"Conexión panorámica entre la Sierra Gorda y la Huasteca.","lat":21.2173,"lon":-99.4708,"duration":"2 h 30 min"},
-  {"id":"jalpan-queretaro","name":"Jalpan → Querétaro","origin":"Jalpan de Serra","destination":"Querétaro","description":"Ruta principal hacia la capital del estado.","lat":21.2173,"lon":-99.4708,"duration":"3 h 45 min"},
-  {"id":"rioverde-jalpan","name":"Rioverde → Jalpan","origin":"Rioverde","destination":"Jalpan de Serra","description":"Acceso a Jalpan desde San Luis Potosí.","lat":21.9312,"lon":-99.9939,"duration":"2 h 15 min"}
+  {
+    "id": "plaza-centro",
+    "name": "Plaza del Centro",
+    "description": "Espacio público para pasear y descansar.",
+    "lat": 20.593,
+    "lon": -100.3924,
+    "duration": "45 min"
+  },
+  {
+    "id": "museo-comunitario",
+    "name": "Museo Comunitario",
+    "description": "Exposiciones de historia y cultura local.",
+    "lat": 20.5917,
+    "lon": -100.3916,
+    "duration": "1 h 30 min"
+  },
+  {
+    "id": "mirador-bosque",
+    "name": "Mirador del Bosque",
+    "description": "Punto panorámico para disfrutar del paisaje.",
+    "lat": 20.7484,
+    "lon": -99.9489,
+    "duration": "1 h"
+  }
 ]

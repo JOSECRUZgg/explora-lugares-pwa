@@ -1,4 +1,4 @@
-# Reporte de pruebas · Sierra Móvil PWA
+# Reporte de pruebas · Explora Lugares PWA
 
 Fecha: 1 de noviembre de 2026.
 
@@ -13,15 +13,15 @@ Fecha: 1 de noviembre de 2026.
 |---|---|---|---|---|
 | P01 | Shell | GET / | HTML 200 con manifiesto | Automatizado: pasó |
 | P02 | Manifiesto | GET /manifest.json | display: standalone | Automatizado: pasó |
-| P03 | Catálogo | GET /api/catalog | Tres rutas JSON | Automatizado: pasó |
-| P04 | SSR | GET /ruta/jalpan-xilitla | Ficha HTML con datos iniciales | Automatizado: pasó |
+| P03 | Catálogo | GET /api/catalog | Tres lugares JSON | Automatizado: pasó |
+| P04 | SSR | GET /lugar/plaza-centro | Ficha HTML con datos iniciales | Automatizado: pasó |
 | P05 | Reseña | POST y GET /api/reviews | La reseña persiste | Automatizado: pasó |
 | P06 | Push, acceso | POST /api/push/send sin token | Respuesta 403 | Automatizado: pasó |
 | P07 | Instalar | Abrir en HTTPS/localhost y usar «Instalar» | App instalada con ícono y splash del sistema | Pendiente de prueba manual |
 | P08 | Offline | Cargar una vez, desactivar red y navegar | Shell y catálogo disponibles | Pendiente de prueba manual |
 | P09 | Sync | Crear reseña offline y restablecer red | Se envía y desaparece «pendiente» | Pendiente de prueba manual |
 | P10 | Push | Suscribirse y enviar desde servidor | Notificación visible y abre app | Pendiente de prueba manual |
-| P11 | Ubicación | Permitir ubicación en «Cerca de mí» | Rutas ordenadas por distancia | Pendiente de prueba manual |
+| P11 | Ubicación | Permitir ubicación en «Cerca de mí» | Lugares ordenados por distancia | Pendiente de prueba manual |
 | P12 | Actualización | Publicar versión nueva y recargar | Aviso «Actualizar» | Pendiente de prueba manual |
 
 Ejecutar pruebas automáticas: npm test.
