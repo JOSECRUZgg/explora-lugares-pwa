@@ -65,3 +65,12 @@ catalog().then(data => { routes = data; render(); }).catch(() => {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(console.error));
 }
+
+function updateConnection() {
+  const label = document.querySelector('#connection');
+  label.textContent = navigator.onLine ? 'En línea' : 'Sin conexión';
+  label.style.color = navigator.onLine ? '#dcfce7' : '#fde68a';
+}
+window.addEventListener('online', updateConnection);
+window.addEventListener('offline', updateConnection);
+updateConnection();
