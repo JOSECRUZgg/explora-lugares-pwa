@@ -1,3 +1,4 @@
+import { get, put } from './storage.js';
 const app = document.querySelector('#app');
 const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 let routes = [];
@@ -14,11 +15,21 @@ async function catalog() {
   try {
     const response = await fetch('./api/catalog');
     if (!response.ok) throw new Error('API no disponible');
-    return await response.json();
+    const data = await response.json();
+    await put('catalog', data, 'routes');
+    return data;
   } catch {
-    const response = await fetch('./data/catalog.json');
-    if (!response.ok) throw new Error('Catálogo no disponible');
-    return await response.json();
+    try {
+      const response = await fetch('./data/catalog.json');
+      if (!response.ok) throw new Error('Catálogo no disponible');
+      const data = await response.json();
+      await put('catalog', data, 'routes');
+      return data;
+    } catch {
+      const saved = await get('catalog', 'routes');
+      if (saved) return saved;
+      throw new Error('Catálogo no disponible');
+    }
   }
 }
 function render() {
@@ -31,9 +42,16 @@ function render() {
     const route = routes.find(item => item.id === id);
     app.innerHTML = route ? '<article class="card"><h1>' + escapeHtml(route.name) + '</h1><p>' + escapeHtml(route.description) + '</p><p>Duración estimada: ' + escapeHtml(route.duration) + '</p><a href="./ruta/' + encodeURIComponent(route.id) + '">Ver ficha SSR</a></article>' : '<h1>Ruta no encontrada</h1>';
   } else {
-    app.innerHTML = '<section class="hero"><h1>Muévete por la Sierra</h1><p>Rutas y paradas a mano, incluso sin conexión.</p><a href="#/catalogo"><button>Explorar rutas</button></a> ' + (installPrompt ? '<button id="install">Instalar aplicación</button>' : '') + '</section>';
+    app.innerHTML = '<section class="hero"><h1>Muévete por la Sierra</h1><p>Rutas y paradas a mano, incluso sin conexión.</p><a href="#/catalogo"><button>Explorar rutas</button></a> ' + (installPrompt ? '<button id="install">Instalar aplicación</button>' : '') + '</section><p><label><input id="compact" type="checkbox" ' + (localStorage.getItem('compact') === 'true' ? 'checked' : '') + '> Vista compacta</label></p>';
   }
 }
+document.addEventListener('change', event => {
+  if (event.target.id === 'compact') {
+    localStorage.setItem('compact', String(event.target.checked));
+    document.body.classList.toggle('compact', event.target.checked);
+  }
+});
+document.body.classList.toggle('compact', localStorage.getItem('compact') === 'true');
 document.addEventListener('click', async event => {
   if (event.target.id !== 'install' || !installPrompt) return;
   await installPrompt.prompt();
