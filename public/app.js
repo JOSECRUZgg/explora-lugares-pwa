@@ -1,6 +1,14 @@
 const app = document.querySelector('#app');
 const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 let routes = [];
+let installPrompt;
+
+window.addEventListener('beforeinstallprompt', event => {
+  event.preventDefault();
+  installPrompt = event;
+  render();
+});
+window.addEventListener('appinstalled', () => { installPrompt = null; render(); });
 
 async function catalog() {
   try {
@@ -23,9 +31,15 @@ function render() {
     const route = routes.find(item => item.id === id);
     app.innerHTML = route ? '<article class="card"><h1>' + escapeHtml(route.name) + '</h1><p>' + escapeHtml(route.description) + '</p><p>Duración estimada: ' + escapeHtml(route.duration) + '</p><a href="./ruta/' + encodeURIComponent(route.id) + '">Ver ficha SSR</a></article>' : '<h1>Ruta no encontrada</h1>';
   } else {
-    app.innerHTML = '<section class="hero"><h1>Muévete por la Sierra</h1><p>Rutas y paradas a mano, incluso sin conexión.</p><a href="#/catalogo"><button>Explorar rutas</button></a></section>';
+    app.innerHTML = '<section class="hero"><h1>Muévete por la Sierra</h1><p>Rutas y paradas a mano, incluso sin conexión.</p><a href="#/catalogo"><button>Explorar rutas</button></a> ' + (installPrompt ? '<button id="install">Instalar aplicación</button>' : '') + '</section>';
   }
 }
+document.addEventListener('click', async event => {
+  if (event.target.id !== 'install' || !installPrompt) return;
+  await installPrompt.prompt();
+  installPrompt = null;
+  render();
+});
 window.addEventListener('hashchange', render);
 catalog().then(data => { routes = data; render(); }).catch(() => {
   app.innerHTML = '<p class="notice">No se pudo cargar el catálogo. Reintenta cuando tengas conexión.</p>';
