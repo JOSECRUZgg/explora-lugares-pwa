@@ -106,7 +106,7 @@ createServer(async (req, res) => {
       if (!route) throw new Error('No encontrada');
       const shell = await readFile(resolve(root, 'index.html'), 'utf8');
       const detail = '<article class="card" data-ssr-route="' + esc(route.id) + '"><h1>' + esc(route.name) + '</h1><p>' + esc(route.description) + '</p><p>Duración estimada: ' + esc(route.duration) + '</p><div id="hydrated-detail"></div></article>';
-      const html = shell.replace('<main id="app" class="container" tabindex="-1">', '<main id="app" class="container" tabindex="-1">' + detail).replace('<title>Sierra Móvil</title>', '<title>' + esc(route.name) + ' · Sierra Móvil</title>');
+      const html = shell.replace('<head>', '<head><base href="/">').replace('<main id="app" class="container" tabindex="-1">', '<main id="app" class="container" tabindex="-1">' + detail).replace('<title>Sierra Móvil</title>', '<title>' + esc(route.name) + ' · Sierra Móvil</title>');
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       return res.end(html);
     }
