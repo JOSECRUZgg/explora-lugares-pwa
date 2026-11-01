@@ -1,7 +1,7 @@
 const VERSION = 'v2';
 const SHELL_CACHE = 'sierra-shell-' + VERSION;
 const DATA_CACHE = 'sierra-data-' + VERSION;
-const SHELL = ['./', './index.html', './styles.css', './app.js', './storage.js', './manifest.json', './offline.html', './data/catalog.json', './icons/icon-192.png', './icons/icon-512.png'];
+const SHELL = ['./', './index.html', './styles.css', './app.js', './storage.js', './reviews.js', './manifest.json', './offline.html', './data/catalog.json', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL)));
 });
@@ -30,4 +30,31 @@ self.addEventListener('fetch', event => {
       return response;
     })));
   }
+});
+
+self.addEventListener('sync', event => {
+  if (event.tag !== 'send-reviews') return;
+  event.waitUntil((async () => {
+    const db = await new Promise((resolve, reject) => {
+      const request = indexedDB.open('sierra-movil', 1);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const pending = await new Promise((resolve, reject) => {
+      const request = db.transaction('reviews').objectStore('reviews').getAll();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    for (const review of pending) {
+      const response = await fetch('./api/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(review) });
+      if (!response.ok) throw new Error('Reseña pendiente');
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction('reviews', 'readwrite');
+        tx.objectStore('reviews').delete(review.id);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+    db.close();
+  })());
 });

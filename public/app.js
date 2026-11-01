@@ -1,3 +1,4 @@
+import { saveReview, localReviews, sendPending } from './reviews.js';
 import { get, put } from './storage.js';
 const app = document.querySelector('#app');
 const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -40,11 +41,27 @@ function render() {
     ).join('') + '</div>';
   } else if (page === 'ruta') {
     const route = routes.find(item => item.id === id);
-    app.innerHTML = route ? '<article class="card"><h1>' + escapeHtml(route.name) + '</h1><p>' + escapeHtml(route.description) + '</p><p>Duración estimada: ' + escapeHtml(route.duration) + '</p><a href="./ruta/' + encodeURIComponent(route.id) + '">Ver ficha SSR</a></article>' : '<h1>Ruta no encontrada</h1>';
+    app.innerHTML = route ? '<article class="card"><h1>' + escapeHtml(route.name) + '</h1><p>' + escapeHtml(route.description) + '</p><p>Duración estimada: ' + escapeHtml(route.duration) + '</p><a href="./ruta/' + encodeURIComponent(route.id) + '">Ver ficha SSR</a><h2>Reseñas</h2><div id="reviews"></div><form id="review-form" data-route="' + escapeHtml(route.id) + '"><label for="review-text">Tu reseña</label><textarea id="review-text" maxlength="500" required></textarea><button>Guardar reseña</button></form></article>' : '<h1>Ruta no encontrada</h1>';
   } else {
     app.innerHTML = '<section class="hero"><h1>Muévete por la Sierra</h1><p>Rutas y paradas a mano, incluso sin conexión.</p><a href="#/catalogo"><button>Explorar rutas</button></a> ' + (installPrompt ? '<button id="install">Instalar aplicación</button>' : '') + '</section><p><label><input id="compact" type="checkbox" ' + (localStorage.getItem('compact') === 'true' ? 'checked' : '') + '> Vista compacta</label></p>';
   }
+  if (page === 'ruta' && id) showReviews(id);
 }
+async function showReviews(id) {
+  const node = document.querySelector('#reviews');
+  if (!node) return;
+  const local = await localReviews(id);
+  let remote = [];
+  try { const response = await fetch('./api/reviews?routeId=' + encodeURIComponent(id)); if (response.ok) remote = await response.json(); } catch {}
+  node.innerHTML = [...local.map(item => ({...item, pending: true})), ...remote].map(item => '<p class="card">' + escapeHtml(item.text) + (item.pending ? ' <small>(pendiente de envío)</small>' : '') + '</p>').join('') || '<p>Aún no hay reseñas.</p>';
+}
+document.addEventListener('submit', async event => {
+  if (event.target.id !== 'review-form') return;
+  event.preventDefault();
+  const text = event.target.querySelector('textarea');
+  try { await saveReview(event.target.dataset.route, text.value); text.value = ''; await showReviews(event.target.dataset.route); }
+  catch (error) { alert(error.message); }
+});
 document.addEventListener('change', event => {
   if (event.target.id === 'compact') {
     localStorage.setItem('compact', String(event.target.checked));
@@ -74,3 +91,5 @@ function updateConnection() {
 window.addEventListener('online', updateConnection);
 window.addEventListener('offline', updateConnection);
 updateConnection();
+
+sendPending().catch(console.error);

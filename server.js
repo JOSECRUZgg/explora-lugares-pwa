@@ -1,15 +1,52 @@
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
 
 const root = resolve(import.meta.dirname, 'public');
 const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const port = Number(process.env.PORT || 3000);
+const reviewsFile = resolve(import.meta.dirname, 'data/reviews.json');
+async function reviews() {
+  try { return JSON.parse(await readFile(reviewsFile, 'utf8')); }
+  catch (error) { if (error.code === 'ENOENT') return []; throw error; }
+}
+let writes = Promise.resolve();
+
 const esc = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
 createServer(async (req, res) => {
   try {
     const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+    if (pathname === '/api/reviews' && req.method === 'GET') {
+      const routeId = new URL(req.url, 'http://localhost').searchParams.get('routeId');
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      return res.end(JSON.stringify((await reviews()).filter(item => item.routeId === routeId)));
+    }
+    if (pathname === '/api/reviews' && req.method === 'POST') {
+      let body = '';
+      for await (const chunk of req) {
+        body += chunk;
+        if (body.length > 4096) { res.writeHead(413); return res.end('Demasiado grande'); }
+      }
+      let review;
+      try { review = JSON.parse(body); } catch { res.writeHead(400); return res.end('JSON inválido'); }
+      if (!review || typeof review.id !== 'string' || !/^[0-9a-f-]{36}$/.test(review.id) || typeof review.routeId !== 'string' || typeof review.text !== 'string' || !review.text.trim() || review.text.length > 500) {
+        res.writeHead(400); return res.end('Reseña inválida');
+      }
+      const routes = JSON.parse(await readFile(resolve(root, 'data/catalog.json'), 'utf8'));
+      if (!routes.some(item => item.id === review.routeId)) { res.writeHead(400); return res.end('Ruta inválida'); }
+      writes = writes.then(async () => {
+        const saved = await reviews();
+        if (!saved.some(item => item.id === review.id)) {
+          saved.push({ id: review.id, routeId: review.routeId, text: review.text.trim(), createdAt: new Date().toISOString() });
+          await mkdir(resolve(import.meta.dirname, 'data'), { recursive: true });
+          await writeFile(reviewsFile, JSON.stringify(saved, null, 2));
+        }
+      });
+      await writes;
+      res.writeHead(201, { 'Content-Type': 'application/json' });
+      return res.end('{"ok":true}');
+    }
     if (pathname === '/api/catalog') {
       const data = await readFile(resolve(root, 'data/catalog.json'));
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
