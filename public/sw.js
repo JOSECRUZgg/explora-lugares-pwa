@@ -1,4 +1,4 @@
-const VERSION = 'v10';
+const VERSION = 'v12';
 const SHELL_CACHE = 'lugares-shell-' + VERSION;
 const DATA_CACHE = 'lugares-data-' + VERSION;
 const SHELL = ['./', './index.html', './styles.css', './app.js', './storage.js', './reviews.js', './notifications.js', './device.js', './manifest.json', './offline.html', './data/catalog.json', './icons/icon-192.png', './icons/icon-512.png'];
@@ -29,7 +29,7 @@ self.addEventListener('fetch', event => {
     }).catch(async () => {
       const cached = await caches.match(request);
       if (cached) return cached;
-      return caches.match(url.pathname === new URL('./', self.location.href).pathname ? './index.html' : './offline.html');
+      return url.pathname === new URL('./', self.location.href).pathname ? caches.match('./index.html') : Response.redirect(new URL('./offline.html', self.location.href), 302);
     }));
   } else if (url.pathname.includes('/api/') || url.pathname.endsWith('/data/catalog.json')) {
     event.respondWith(caches.open(DATA_CACHE).then(async cache => {
@@ -74,6 +74,8 @@ self.addEventListener('sync', event => {
         tx.oncomplete = resolve;
         tx.onerror = () => reject(tx.error);
       });
+      const clients = await self.clients.matchAll({ includeUncontrolled: true });
+      clients.forEach(client => client.postMessage({ type: 'reviews-sent', placeId: review.placeId }));
     }
     db.close();
   })());

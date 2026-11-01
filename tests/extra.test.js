@@ -30,5 +30,7 @@ test('service worker muestra offline.html en una ficha no guardada', async () =>
     respondWith: promise => { response = promise; },
     waitUntil: () => {}
   });
-  assert.equal(await (await response).text(), 'offline');
+  const fallback = await response;
+  assert.equal(fallback.status, 302);
+  assert.equal(fallback.headers.get('location'), 'https://example.com/app/offline.html');
 });

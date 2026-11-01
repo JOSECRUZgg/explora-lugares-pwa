@@ -2,7 +2,7 @@
 
 Fecha: 1 de noviembre de 2026.
 
-Estado general: fases 0–4, 9 y 13 comprobadas; las fases 5–8 y 10–12 tienen verificaciones pendientes. El backend público aún no está desplegado.
+Estado general: todas las fases están implementadas y tienen al menos un commit. Se comprobó también la recuperación de una reseña tras una caída del servidor; instalación, red realmente desconectada, Background Sync, geolocalización y entrega push siguen sin prueba concluyente. El backend público aún no está desplegado.
 
 ## Herramientas
 - Node.js node --test para API y archivos servidos.
@@ -20,8 +20,8 @@ Estado general: fases 0–4, 9 y 13 comprobadas; las fases 5–8 y 10–12 tiene
 | P05 | Reseña | POST y GET /api/reviews | La reseña persiste | Automatizado: pasó |
 | P06 | Push, acceso | POST /api/push/send sin token | Respuesta 403 | Automatizado: pasó |
 | P07 | Instalar | Abrir en HTTPS/localhost y usar «Instalar» | App instalada con ícono y splash del sistema | Pendiente de prueba manual |
-| P08 | Offline | Cargar una vez, desactivar red y navegar | Shell y catálogo disponibles | Pendiente de prueba manual |
-| P09 | Sync | Crear reseña offline y restablecer red | Se envía y desaparece «pendiente» | Pendiente de prueba manual |
+| P08 | Offline | Cargar una vez, detener servidor local y navegar | Shell y catálogo disponibles | Navegador: pasó con servidor caído; falta prueba sin red real |
+| P09 | Sync | Crear reseña con servidor caído, reiniciarlo y reabrir app | Se envía y desaparece «pendiente» | Navegador: pasó por reintento al abrir; evento Background Sync sin verificar |
 | P10 | Push | Suscribirse y enviar desde servidor | Notificación visible y abre app | Pendiente de prueba manual |
 | P11 | Ubicación | Permitir ubicación en «Cerca de mí» | Lugares ordenados por distancia | Pendiente de prueba manual |
 | P12 | Actualización | Publicar versión nueva y recargar | Aviso «Actualizar» | Navegador: pasó |
@@ -31,10 +31,12 @@ Estado general: fases 0–4, 9 y 13 comprobadas; las fases 5–8 y 10–12 tiene
 | P16 | Diseño intermedio | Abrir ficha a 768 px | Sin desplazamiento horizontal y navegación de 44 px | Navegador local: pasó |
 | P17 | Ficha SSR visual | Abrir /lugar/plaza-centro en servidor local | Ficha y reseñas hidratadas con el nuevo diseño | Navegador local: pasó |
 | P18 | Página offline visual | Abrir offline.html directamente | Mensaje y regreso al inicio legibles | Navegador local: pasó; red offline aún pendiente |
-| P19 | Fallback offline | Simular fallo de red en una ficha no guardada | Service worker responde offline.html | Automatizado: pasó |
+| P19 | Fallback offline | Abrir ficha SSR no guardada con servidor caído | Redirección a /offline.html y enlace correcto al inicio | Automatizado y navegador: pasó |
 | P20 | Distancia | Comparar coordenadas iguales y separadas un grado | 0 km y más de 100 km, respectivamente | Automatizado: pasó |
 | P21 | Suscripción push | POST válido e inválido al servidor de prueba | 201 y persistencia; 400 para entrada inválida | Automatizado: pasó |
 | P22 | Preferencia local | Activar vista compacta y recargar Pages | Casilla conserva el estado; se restablece después | Navegador: pasó |
+| P23 | Cola de reseñas | Guardar reseña con servidor detenido | Aparece «Pendiente de envío» en ficha | Navegador local: pasó |
+| P24 | Recuperación | Reiniciar servidor y reabrir app | Reseña persiste en API y desaparece etiqueta pendiente | Navegador local: pasó |
 
 Ejecutar pruebas automáticas: npm test. Última ejecución: 3 pruebas, 3 aprobadas.
 En navegadores sin Background Sync, el envío pendiente también se intenta al volver la conexión o abrir la app.
@@ -71,11 +73,11 @@ GitHub Pages solo sirve archivos estáticos. La ficha SSR, el envío de reseñas
 ## Pendientes para cumplimiento total
 
 1. Probar instalación y splash del sistema en un navegador compatible.
-2. Probar navegación sin red con DevTools o un dispositivo real.
-3. Probar reseñas offline y Background Sync con un servidor accesible tras recuperar la red.
+2. Probar navegación sin red real con DevTools o un dispositivo; la caída del servidor local ya se comprobó.
+3. Probar específicamente el evento Background Sync tras recuperar la red; el reintento al abrir la app ya se comprobó.
 4. Desplegar la API Node.js en HTTPS, conectarla a la versión de Pages y comprobar SSR, reseñas y push reales.
-5. Probar geolocalización con permiso del usuario y documentar evidencia.
-6. Repetir las pruebas P07–P11 y registrar resultados observados, navegador y fecha.
+5. Probar geolocalización en un dispositivo compatible: se autorizó el permiso, pero el navegador de prueba no devolvió coordenadas.
+6. Completar P07–P11 en un navegador compatible y registrar evidencia de instalación, permiso de notificaciones y entrega push.
 
 ## Mejora visual · 1 de noviembre de 2026
 
@@ -95,13 +97,13 @@ Verificación visual en navegador local: portada y catálogo a 1280 px; portada 
 | 3 · Service worker | Registro en app.js y eventos install, activate y fetch; aviso de actualización observado | Comprobada |
 | 4 · CSR y SSR | Catálogo de tres lugares, navegación CSR y ficha SSR probados con Node y navegador | Comprobada |
 | 5 · Splash y Home | Splash interno e inicio vistos; botón de instalación condicionado al navegador | Parcial: falta instalación y splash del sistema |
-| 6 · Datos locales | IndexedDB implementado; vista compacta persistió tras recarga en Pages | Parcial: falta inspeccionar respaldo IndexedDB con red desconectada |
-| 7 · Caché y offline | Tres estrategias presentes; prueba automática del fallback offline.html aprobada | Parcial: falta navegación real sin red |
-| 8 · Reseñas y Sync | API POST/GET probada; cola local y evento sync presentes; fallo de registro sync ya no bloquea la reseña | Parcial: falta sincronización real al reconectar |
+| 6 · Datos locales | IndexedDB y preferencias implementados; catálogo disponible con servidor caído; vista compacta persistió tras recarga | Parcial: falta inspección directa de IndexedDB sin red real |
+| 7 · Caché y offline | Tres estrategias presentes; shell, catálogo y redirección offline.html probados con servidor caído | Parcial: falta navegación con red realmente desconectada |
+| 8 · Reseñas y Sync | Reseña guardada con servidor caído y enviada al reabrir la app; API persistió y la etiqueta pendiente desapareció | Parcial: falta observar el evento Background Sync al volver la red |
 | 9 · Actualización | skipWaiting, clients.claim y aviso «Actualizar» comprobados en navegador | Comprobada |
 | 10 · Notificaciones | Claves VAPID locales excluidas de Git; API guarda suscripciones válidas y rechaza inválidas | Parcial: faltan notificación local y entrega push reales |
 | 11 · Dispositivo e hidratación | Distancia probada; ficha SSR hidratada en navegador local | Parcial: falta probar permiso y ubicación real |
-| 12 · Pruebas | Tabla P01–P22 y tres pruebas automáticas aprobadas | Parcial: P07–P11 siguen pendientes |
+| 12 · Pruebas | Tabla P01–P24 y tres pruebas automáticas aprobadas | Parcial: P07, P10, P11 y pruebas de red/Sync reales pendientes |
 | 13 · Publicación | Repositorio, Pages y actualización previa comprobados; existe workflow de publicación | Comprobada |
 
 La prueba automática del fallback solo simula una petición fallida en el service worker; no sustituye la prueba de navegación offline en un navegador. La prueba de suscripciones no envía una notificación push. GitHub Pages no ejecuta server.js, por lo que SSR, sincronización con servidor y push requieren alojar esa API en HTTPS.
@@ -130,12 +132,12 @@ La prueba automática del fallback solo simula una petición fallida en el servi
 | 5.3 Home e instalación | Parcial | Home funciona; botón depende de beforeinstallprompt y falta prueba de instalación |
 | 6.1 IndexedDB | Parcial | Capa y stores creados en código; falta inspección del almacenamiento con red desconectada |
 | 6.2 localStorage | Hecho | Vista compacta persistió tras recarga |
-| 6.3 Respaldo del catálogo | Parcial | Fallback a IndexedDB implementado; falta prueba real sin red |
+| 6.3 Respaldo del catálogo | Parcial | Catálogo disponible con servidor detenido; falta aislar y verificar IndexedDB con red real desconectada |
 | 7.1 offline.html | Hecho | Página renderizada y verificada visualmente |
-| 7.2 Tres estrategias de caché | Parcial | Navegación, datos y shell implementados; fallback unitario aprobado; falta prueba real offline |
+| 7.2 Tres estrategias de caché | Parcial | Navegación, datos y shell implementados; caída del servidor y redirección a offline.html probadas; falta prueba sin red real |
 | 7.3 Indicador de conexión | Parcial | Estado «En línea» visible; falta observar transición sin red |
 | 8.1 API de reseñas | Hecho en Node | POST y GET con persistencia en prueba aislada |
-| 8.2 Guardar local primero | Parcial | Cola IndexedDB implementada; falta prueba con desconexión real |
+| 8.2 Guardar local primero | Hecho en prueba local | Reseña quedó pendiente con servidor detenido y llegó a la API al reabrir app |
 | 8.3 Evento sync | Parcial | Handler presente; falta comprobar envío al recuperar red |
 | 9.1 skipWaiting y clients.claim | Hecho | Código presente y versión nueva activada en navegador |
 | 9.2 Aviso de actualización | Hecho | Aviso «Actualizar» observado y usado |
@@ -148,8 +150,16 @@ La prueba automática del fallback solo simula una petición fallida en el servi
 | 11.2 Cerca de mí | Parcial | Vista presente; permiso y orden con ubicación real pendientes |
 | 11.3 Hidratación SSR | Hecho local | Formulario y reseñas visibles tras cargar HTML SSR |
 | 12.1 Herramientas | Hecho | Node test, navegador y herramientas manuales documentados |
-| 12.2 Casos de prueba | Parcial | Tabla P01–P22 presente; P07–P11 siguen pendientes |
+| 12.2 Casos de prueba | Parcial | Tabla P01–P24 presente; P07, P10 y P11 pendientes, P08 y P09 probadas parcialmente |
 | 13.1 Repositorio GitHub | Hecho | Rama main y commits para todas las fases |
 | 13.2 GitHub Pages | Hecho | URL pública abre la PWA |
 | 13.3 Alcance de Pages | Hecho | Límites del hosting estático documentados |
 | 13.4 Actualización | Hecho | Cambios publicados y aviso de nueva versión comprobado |
+
+## Prueba de caída y recuperación del servidor · 1 de noviembre de 2026
+
+En el navegador de prueba, con el servidor local en el puerto 3193 y el service worker instalado, se detuvo Node.js. El inicio y el catálogo siguieron disponibles. En la ficha de Plaza del Centro se guardó «Prueba de recuperación 3193» y apareció «Pendiente de envío». Al abrir la ficha SSR sin guardar, la aplicación redirigió a `/offline.html`; el enlace «Volver al inicio» apuntó a `/`.
+
+Después de reiniciar el servidor y reabrir la aplicación, la reseña se encontró en el archivo JSON aislado de pruebas y se mostró en la ficha sin «Pendiente de envío». Esto valida el almacenamiento local y el reintento al abrir la app. El equipo conservó conexión de red durante la prueba; por ello no valida el indicador `navigator.onLine` ni la activación del evento Background Sync por el navegador. Las pruebas de ubicación y notificación local se intentaron con autorización del usuario, pero el navegador de prueba no entregó coordenadas ni mostró un aviso verificable; no se marcan como aprobadas.
+
+La prueba detectó dos fallos y se corrigieron: la página offline conservaba una URL de ficha que rompía los enlaces relativos, y el estado visual de una reseña ya enviada podía quedarse en «Pendiente». El service worker ahora redirige a su página offline y la vista se actualiza tras el envío desde la app o desde el worker.

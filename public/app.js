@@ -129,6 +129,7 @@ document.addEventListener('click', async event => {
   installPrompt = null;
   render();
 });
+window.addEventListener('reviews-sent', event => showReviews(event.detail.placeId));
 window.addEventListener('hashchange', render);
 catalog().then(data => { places = data; render(); }).catch(() => {
   app.innerHTML = '<p class="notice">No se pudo cargar el catálogo. Reintenta cuando tengas conexión.</p>';
@@ -144,6 +145,9 @@ if ('serviceWorker' in navigator) {
       if (registration.waiting) promptUpdate();
       registration.addEventListener('updatefound', () => registration.installing?.addEventListener('statechange', promptUpdate));
       navigator.serviceWorker.addEventListener('controllerchange', () => location.reload());
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data?.type === 'reviews-sent') showReviews(event.data.placeId);
+      });
       document.addEventListener('click', event => {
         if (event.target.id === 'update') registration.waiting?.postMessage('SKIP_WAITING');
       });

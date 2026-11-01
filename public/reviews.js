@@ -15,6 +15,7 @@ export async function sendPending() {
       const response = await fetch('./api/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(review) });
       if (!response.ok) throw new Error('Pendiente');
       await remove('reviews', review.id);
+      window.dispatchEvent(new CustomEvent('reviews-sent', { detail: { placeId: review.placeId } }));
     } catch {
       if ('serviceWorker' in navigator) {
         try {
