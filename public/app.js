@@ -1,3 +1,4 @@
+import { localNotification, subscribePush } from './notifications.js';
 import { saveReview, localReviews, sendPending } from './reviews.js';
 import { get, put } from './storage.js';
 const app = document.querySelector('#app');
@@ -43,7 +44,7 @@ function render() {
     const route = routes.find(item => item.id === id);
     app.innerHTML = route ? '<article class="card"><h1>' + escapeHtml(route.name) + '</h1><p>' + escapeHtml(route.description) + '</p><p>Duración estimada: ' + escapeHtml(route.duration) + '</p><a href="./ruta/' + encodeURIComponent(route.id) + '">Ver ficha SSR</a><h2>Reseñas</h2><div id="reviews"></div><form id="review-form" data-route="' + escapeHtml(route.id) + '"><label for="review-text">Tu reseña</label><textarea id="review-text" maxlength="500" required></textarea><button>Guardar reseña</button></form></article>' : '<h1>Ruta no encontrada</h1>';
   } else {
-    app.innerHTML = '<section class="hero"><h1>Muévete por la Sierra</h1><p>Rutas y paradas a mano, incluso sin conexión.</p><a href="#/catalogo"><button>Explorar rutas</button></a> ' + (installPrompt ? '<button id="install">Instalar aplicación</button>' : '') + '</section><p><label><input id="compact" type="checkbox" ' + (localStorage.getItem('compact') === 'true' ? 'checked' : '') + '> Vista compacta</label></p>';
+    app.innerHTML = '<section class="hero"><h1>Muévete por la Sierra</h1><p>Rutas y paradas a mano, incluso sin conexión.</p><a href="#/catalogo"><button>Explorar rutas</button></a> ' + (installPrompt ? '<button id="install">Instalar aplicación</button>' : '') + '</section><p><button id="notify-local">Probar notificación local</button> <button id="push-subscribe">Activar push</button></p><p><label><input id="compact" type="checkbox" ' + (localStorage.getItem('compact') === 'true' ? 'checked' : '') + '> Vista compacta</label></p>';
   }
   if (page === 'ruta' && id) showReviews(id);
 }
@@ -107,3 +108,10 @@ window.addEventListener('offline', updateConnection);
 updateConnection();
 
 sendPending().catch(console.error);
+
+document.addEventListener('click', async event => {
+  try {
+    if (event.target.id === 'notify-local') await localNotification();
+    if (event.target.id === 'push-subscribe') { await subscribePush(); document.querySelector('#toast').textContent = 'Notificaciones push activadas'; }
+  } catch (error) { document.querySelector('#toast').textContent = error.message; }
+});

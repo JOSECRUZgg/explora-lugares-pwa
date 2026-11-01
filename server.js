@@ -1,3 +1,4 @@
+import webpush from 'web-push';
 import { createServer } from 'node:http';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
@@ -5,7 +6,25 @@ import { extname, resolve, sep } from 'node:path';
 const root = resolve(import.meta.dirname, 'public');
 const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const port = Number(process.env.PORT || 3000);
+try { process.loadEnvFile(resolve(import.meta.dirname, '.env')); } catch {}
 const reviewsFile = resolve(import.meta.dirname, 'data/reviews.json');
+const subscriptionsFile = resolve(import.meta.dirname, 'data/subscriptions.json');
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails('mailto:admin@example.com', process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
+}
+async function subscriptions() {
+  try { return JSON.parse(await readFile(subscriptionsFile, 'utf8')); }
+  catch (error) { if (error.code === 'ENOENT') return []; throw error; }
+}
+async function jsonBody(req, max = 8192) {
+  let body = '';
+  for await (const chunk of req) {
+    body += chunk;
+    if (body.length > max) throw new Error('Cuerpo demasiado grande');
+  }
+  return JSON.parse(body);
+}
+
 async function reviews() {
   try { return JSON.parse(await readFile(reviewsFile, 'utf8')); }
   catch (error) { if (error.code === 'ENOENT') return []; throw error; }
@@ -17,6 +36,34 @@ const esc = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<'
 createServer(async (req, res) => {
   try {
     const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+    if (pathname === '/api/push/key' && req.method === 'GET') {
+      if (!process.env.VAPID_PUBLIC_KEY) { res.writeHead(503); return res.end('Push no configurado'); }
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ publicKey: process.env.VAPID_PUBLIC_KEY }));
+    }
+    if (pathname === '/api/push/subscriptions' && req.method === 'POST') {
+      let subscription;
+      try { subscription = await jsonBody(req); } catch { res.writeHead(400); return res.end('JSON inválido'); }
+      if (typeof subscription?.endpoint !== 'string' || !subscription.endpoint.startsWith('https://') || typeof subscription?.keys?.p256dh !== 'string' || typeof subscription?.keys?.auth !== 'string') {
+        res.writeHead(400); return res.end('Suscripción inválida');
+      }
+      const saved = await subscriptions();
+      if (!saved.some(item => item.endpoint === subscription.endpoint)) {
+        saved.push(subscription);
+        await mkdir(resolve(import.meta.dirname, 'data'), { recursive: true });
+        await writeFile(subscriptionsFile, JSON.stringify(saved, null, 2));
+      }
+      res.writeHead(201); return res.end();
+    }
+    if (pathname === '/api/push/send' && req.method === 'POST') {
+      if (!process.env.PUSH_ADMIN_TOKEN || req.headers.authorization !== 'Bearer ' + process.env.PUSH_ADMIN_TOKEN) {
+        res.writeHead(403); return res.end('No autorizado');
+      }
+      const saved = await subscriptions();
+      const results = await Promise.allSettled(saved.map(item => webpush.sendNotification(item, JSON.stringify({ title: 'Sierra Móvil', body: 'Consulta las novedades de tus rutas.', url: './' }))));
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ sent: results.filter(item => item.status === 'fulfilled').length, total: saved.length }));
+    }
     if (pathname === '/api/reviews' && req.method === 'GET') {
       const routeId = new URL(req.url, 'http://localhost').searchParams.get('routeId');
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });

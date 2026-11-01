@@ -1,7 +1,7 @@
-const VERSION = 'v3';
+const VERSION = 'v4';
 const SHELL_CACHE = 'sierra-shell-' + VERSION;
 const DATA_CACHE = 'sierra-data-' + VERSION;
-const SHELL = ['./', './index.html', './styles.css', './app.js', './storage.js', './reviews.js', './manifest.json', './offline.html', './data/catalog.json', './icons/icon-192.png', './icons/icon-512.png'];
+const SHELL = ['./', './index.html', './styles.css', './app.js', './storage.js', './reviews.js', './notifications.js', './manifest.json', './offline.html', './data/catalog.json', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL)));
 });
@@ -63,4 +63,18 @@ self.addEventListener('sync', event => {
     }
     db.close();
   })());
+});
+
+self.addEventListener('push', event => {
+  let data = {};
+  try { data = event.data?.json() || {}; } catch {}
+  event.waitUntil(self.registration.showNotification(data.title || 'Sierra Móvil', {
+    body: data.body || 'Tienes novedades.',
+    icon: './icons/icon-192.png',
+    data: { url: data.url || './' }
+  }));
+});
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(self.clients.openWindow(event.notification.data?.url || './'));
 });
