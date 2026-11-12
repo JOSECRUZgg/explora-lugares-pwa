@@ -1,6 +1,8 @@
 # Reporte de pruebas · Explora Lugares PWA
 
-Fecha: 1 de noviembre de 2026.
+Autor: José Cruz Ramírez Fortanel.
+
+Actualizado: 12 de noviembre de 2026.
 
 Estado general: todas las fases están implementadas y tienen al menos un commit. Se comprobó también la recuperación de una reseña tras una caída del servidor; instalación, red realmente desconectada, Background Sync, geolocalización y entrega push siguen sin prueba concluyente. El backend público aún no está desplegado.
 
@@ -163,3 +165,16 @@ En el navegador de prueba, con el servidor local en el puerto 3193 y el service 
 Después de reiniciar el servidor y reabrir la aplicación, la reseña se encontró en el archivo JSON aislado de pruebas y se mostró en la ficha sin «Pendiente de envío». Esto valida el almacenamiento local y el reintento al abrir la app. El equipo conservó conexión de red durante la prueba; por ello no valida el indicador `navigator.onLine` ni la activación del evento Background Sync por el navegador. Las pruebas de ubicación y notificación local se intentaron con autorización del usuario, pero el navegador de prueba no entregó coordenadas ni mostró un aviso verificable; no se marcan como aprobadas.
 
 La prueba detectó dos fallos y se corrigieron: la página offline conservaba una URL de ficha que rompía los enlaces relativos, y el estado visual de una reseña ya enviada podía quedarse en «Pendiente». El service worker ahora redirige a su página offline y la vista se actualiza tras el envío desde la app o desde el worker.
+
+## Evidencia visual y límites de la revisión · 12 de noviembre de 2026
+
+El Word `REPORTE_PWA_Jose_Cruz_Ramirez_Fortanel_ENTREGA.docx` usa la portada original y desarrolla las fases 0–13 con fragmentos de código. Incluye la matriz P01–P24 y estas capturas de la aplicación publicada:
+
+| Archivo | Observación comprobada | No demuestra |
+|---|---|---|
+| `evidencias/01-inicio-publicado.png` | Inicio y navegación | Instalación o splash del sistema |
+| `evidencias/02-cerca-publicado.png` | Vista «Cerca de mí» | Coordenadas concedidas o lista ordenada |
+| `evidencias/03-catalogo-publicado.png` | Catálogo CSR | Respuesta de la API Node pública |
+| `evidencias/04-ficha-publicada.png` | Ficha y formulario | Reseña enviada al servidor |
+
+En Chrome de la laptop apareció el botón «Instalar aplicación», pero la instalación no pudo confirmarse con una ventana standalone. La notificación local y la ubicación tampoco dieron una respuesta observable. La entrega push real requiere desplegar la API Node HTTPS; el alojamiento de ese backend quedó pospuesto. P07, P10 y P11 permanecen pendientes. P08 y P09 cuentan con evidencia parcial de caída y recuperación del servidor, no de desconexión física o evento Background Sync real. Estas pruebas no se presentan como simulaciones aprobadas.
