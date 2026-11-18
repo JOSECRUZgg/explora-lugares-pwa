@@ -1,3 +1,4 @@
+import { apiURL } from './api.js';
 function decodeKey(base64) {
   const value = (base64 + '='.repeat((4 - base64.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/');
   return Uint8Array.from(atob(value), char => char.charCodeAt(0));
@@ -10,12 +11,12 @@ export async function localNotification() {
 }
 export async function subscribePush() {
   if (!('PushManager' in window) || !('serviceWorker' in navigator)) throw new Error('Push no disponible');
-  const keyResponse = await fetch('./api/push/key');
+  const keyResponse = await fetch(apiURL('/api/push/key'));
   if (!keyResponse.ok) throw new Error('El servidor push no está disponible');
   const { publicKey } = await keyResponse.json();
   if (await Notification.requestPermission() !== 'granted') throw new Error('Permiso denegado');
   const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: decodeKey(publicKey) });
-  const response = await fetch('./api/push/subscriptions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(subscription) });
+  const subscription = await registration.pushManager.getSubscription() || await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: decodeKey(publicKey) });
+  const response = await fetch(apiURL('/api/push/subscriptions'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(subscription) });
   if (!response.ok) throw new Error('No se pudo guardar la suscripción');
 }

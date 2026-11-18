@@ -1,3 +1,4 @@
+import { apiURL } from './api.js';
 import { all, put, remove } from './storage.js';
 
 export async function saveReview(placeId, text) {
@@ -12,7 +13,7 @@ export async function sendPending() {
   const pending = await all('reviews');
   for (const review of pending) {
     try {
-      const response = await fetch('./api/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(review) });
+      const response = await fetch(apiURL('/api/reviews'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(review) });
       if (!response.ok) throw new Error('Pendiente');
       await remove('reviews', review.id);
       window.dispatchEvent(new CustomEvent('reviews-sent', { detail: { placeId: review.placeId } }));

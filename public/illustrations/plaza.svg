@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Ilustración de una plaza con árboles y una fuente">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#ffd6a9"/><stop offset="1" stop-color="#fff0cf"/></linearGradient>
+    <linearGradient id="ground" x2="0" y2="1"><stop stop-color="#e9bb91"/><stop offset="1" stop-color="#c78169"/></linearGradient>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h800v520H0z"/>
+  <circle cx="645" cy="105" r="52" fill="#fff8dd"/>
+  <path d="M0 300q165-64 340 0t460-12v232H0Z" fill="#e8c99e"/>
+  <path d="M0 362q285-54 800-8v166H0Z" fill="url(#ground)"/>
+  <path d="M190 207h425v152H190z" fill="#f9e8cc"/>
+  <path d="M190 207h425l-28-34H216z" fill="#a95049"/>
+  <path d="M210 224h385v119H210z" fill="#e7aa79"/>
+  <path d="M234 250h62v93h-62zm104 0h62v93h-62zm104 0h62v93h-62zm104 0h31v93h-31z" fill="#fff0d5"/>
+  <path d="M246 343v-67a19 19 0 0 1 38 0v67m66 0v-67a19 19 0 0 1 38 0v67m66 0v-67a19 19 0 0 1 38 0v67" fill="#9c4d4b"/>
+  <path d="M0 385h800" stroke="#fff2db" stroke-width="8"/>
+  <path d="M394 376h100l32 144H362z" fill="#f6d7af"/>
+  <ellipse cx="444" cy="382" rx="86" ry="19" fill="#8daba2"/>
+  <path d="M430 376q-20-48 13-72 36 26 12 72" fill="#8daba2"/>
+  <path d="M444 304v-34" stroke="#8daba2" stroke-width="8" stroke-linecap="round"/>
+  <path d="M95 285v156m-3-119q-96-13-66-74 27-16 66 8 28-53 70-19 40 53-66 85m616-46v166m0-122q-91-15-66-72 30-22 65 4 43-57 78-9 24 47-77 77" fill="#42745e" stroke="#684b3d" stroke-width="14" stroke-linejoin="round"/>
+  <path d="M0 461q160-38 318 3t482-10v66H0Z" fill="#b67261" opacity=".5"/>
+</svg>

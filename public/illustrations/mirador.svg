@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Ilustración de un mirador entre montañas">
+  <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#add7df"/><stop offset="1" stop-color="#f9e7ba"/></linearGradient></defs>
+  <path fill="url(#sky)" d="M0 0h800v520H0z"/>
+  <circle cx="627" cy="111" r="53" fill="#fff3c9"/>
+  <path d="m0 348 185-230 164 216 136-171 174 180 141-177v354H0Z" fill="#97b7b0"/>
+  <path d="m0 400 184-194 165 176 136-174 174 192 141-152v272H0Z" fill="#6d9d93"/>
+  <path d="m0 440 176-150 160 131 151-151 165 165 148-116v201H0Z" fill="#3e786e"/>
+  <path d="m0 480 207-126 156 127 132-101 167 102 138-87v125H0Z" fill="#285e58"/>
+  <path d="M0 496q242-53 459 0t341-5v29H0Z" fill="#183f3e"/>
+  <path d="M154 354v160m-58-56 58-128 58 128zm520-75v145m-53-55 53-112 53 112z" fill="#204f47" stroke="#214d45" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M280 441h273l-16 79H296z" fill="#d69b70"/>
+  <path d="M297 444v-53m238 53v-53m-238 7h238m-238 18h238" stroke="#f3d5a8" stroke-width="13" stroke-linecap="round"/>
+  <path d="M313 451v69m205-69v69" stroke="#805940" stroke-width="13"/>
+  <path d="M0 520h800" stroke="#153c39" stroke-width="30"/>
+</svg>

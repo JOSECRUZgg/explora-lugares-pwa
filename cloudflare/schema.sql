@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS reviews (id TEXT PRIMARY KEY, placeId TEXT NOT NULL, text TEXT NOT NULL, createdAt TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS reviews_place ON reviews(placeId);
+CREATE TABLE IF NOT EXISTS subscriptions (endpoint TEXT PRIMARY KEY, payload TEXT NOT NULL);

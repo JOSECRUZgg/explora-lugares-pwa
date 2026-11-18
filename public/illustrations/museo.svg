@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Ilustración de un museo con columnas">
+  <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#c2e0d1"/><stop offset="1" stop-color="#f7e9ba"/></linearGradient></defs>
+  <path fill="url(#sky)" d="M0 0h800v520H0z"/>
+  <circle cx="135" cy="110" r="58" fill="#fef5d9"/>
+  <path d="M0 350q260-75 800-5v175H0Z" fill="#91b4a0"/>
+  <path d="M80 222h640v261H80z" fill="#d88969"/>
+  <path d="M105 221h590v210H105z" fill="#f5d7ad"/>
+  <path d="M75 217 400 76l325 141z" fill="#ab695b"/>
+  <path d="M151 216 400 112l249 104z" fill="#efc48f"/>
+  <circle cx="400" cy="171" r="25" fill="#b36756"/>
+  <circle cx="400" cy="171" r="13" fill="#f9dfb7"/>
+  <path d="M127 232h546v24H127zm0 169h546v30H127z" fill="#ac6a57"/>
+  <path d="M160 251h54v151h-54zm105 0h54v151h-54zm216 0h54v151h-54zm105 0h54v151h-54z" fill="#e3ad7e"/>
+  <path d="M172 251h30v151h-30zm105 0h30v151h-30zm216 0h30v151h-30zm105 0h30v151h-30z" fill="#fff0ce"/>
+  <path d="M353 298a47 47 0 0 1 94 0v133h-94z" fill="#704c45"/>
+  <path d="M366 310a34 34 0 0 1 68 0v121h-68z" fill="#9b6d56"/>
+  <path d="M313 430h174l35 90H278z" fill="#eac59a"/>
+  <path d="M0 472q195-36 347 8t453-5v45H0Z" fill="#5e907b"/>
+  <path d="M33 365v112m0-85q-66-10-50-60 30-23 50 3 22-35 51-12 23 44-51 69m734-25v112m0-84q-65-11-48-60 29-25 49 2 24-35 51-13 20 45-52 71" fill="#39745e" stroke="#654d3f" stroke-width="11"/>
+</svg>

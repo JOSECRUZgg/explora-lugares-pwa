@@ -23,6 +23,8 @@ test('service worker muestra offline.html en una ficha no guardada', async () =>
     fetch: async () => { throw new Error('Sin red'); },
     URL, Request, Response, Promise
   };
+  const config = await readFile(new URL('../public/config.js', import.meta.url), 'utf8');
+  context.importScripts = () => runInNewContext(config, context);
   runInNewContext(source, context);
   let response;
   handlers.fetch({
@@ -34,3 +36,4 @@ test('service worker muestra offline.html en una ficha no guardada', async () =>
   assert.equal(fallback.status, 302);
   assert.equal(fallback.headers.get('location'), 'https://example.com/app/offline.html');
 });
+

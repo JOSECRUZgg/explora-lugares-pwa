@@ -1,0 +1,26 @@
+[
+  {
+    "id": "plaza-centro",
+    "name": "Plaza del Centro",
+    "description": "Espacio público para pasear y descansar.",
+    "lat": 20.593,
+    "lon": -100.3924,
+    "duration": "45 min"
+  },
+  {
+    "id": "museo-comunitario",
+    "name": "Museo Comunitario",
+    "description": "Exposiciones de historia y cultura local.",
+    "lat": 20.5917,
+    "lon": -100.3916,
+    "duration": "1 h 30 min"
+  },
+  {
+    "id": "mirador-bosque",
+    "name": "Mirador del Bosque",
+    "description": "Punto panorámico para disfrutar del paisaje.",
+    "lat": 20.7484,
+    "lon": -99.9489,
+    "duration": "1 h"
+  }
+]

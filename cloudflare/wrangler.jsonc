@@ -1,0 +1,9 @@
+{
+ "name":"explora-lugares-api",
+ "main":"worker.js",
+ "compatibility_date":"2026-11-18",
+ "account_id":"077cd916a393c46d53e89c16f20fd64f",
+ "workers_dev":true,
+ "d1_databases":[{"binding":"DB","database_name":"explora-lugares","database_id":"38bce11f-de51-4c5e-8c5a-c1b70912dd09"}]
+}
+

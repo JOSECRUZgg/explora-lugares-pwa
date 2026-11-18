@@ -1,7 +1,8 @@
-const VERSION = 'v12';
+importScripts('./config.js');
+const VERSION = 'v14';
 const SHELL_CACHE = 'lugares-shell-' + VERSION;
 const DATA_CACHE = 'lugares-data-' + VERSION;
-const SHELL = ['./', './index.html', './styles.css', './app.js', './storage.js', './reviews.js', './notifications.js', './device.js', './manifest.json', './offline.html', './data/catalog.json', './icons/icon-192.png', './icons/icon-512.png'];
+const SHELL = ['./', './index.html', './config.js', './api.js', './styles.css', './app.js', './storage.js', './reviews.js', './notifications.js', './device.js', './manifest.json', './offline.html', './data/catalog.json', './icons/icon-192.png', './icons/icon-512.png', './illustrations/plaza.svg', './illustrations/museo.svg', './illustrations/mirador.svg'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(SHELL_CACHE).then(cache => cache.addAll(SHELL.map(path => new Request(new URL(path, self.location.href), { cache: 'reload' })))));
 });
@@ -18,7 +19,7 @@ self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin) return;
+  if (url.origin !== self.location.origin && url.origin !== self.PWA_API_BASE) return;
   if (request.mode === 'navigate') {
     event.respondWith(fetch(request).then(response => {
       if (response.ok) {
@@ -66,7 +67,7 @@ self.addEventListener('sync', event => {
       request.onerror = () => reject(request.error);
     });
     for (const review of pending) {
-      const response = await fetch('./api/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(review) });
+      const response = await fetch(new URL('/api/reviews', self.PWA_API_BASE || self.location.origin), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(review) });
       if (!response.ok) throw new Error('Reseña pendiente');
       await new Promise((resolve, reject) => {
         const tx = db.transaction('reviews', 'readwrite');

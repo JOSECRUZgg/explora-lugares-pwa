@@ -1,3 +1,4 @@
+import { apiURL } from './api.js';
 import { getLocation, distanceKm } from './device.js';
 import { localNotification, subscribePush } from './notifications.js';
 import { saveReview, localReviews, sendPending } from './reviews.js';
@@ -16,7 +17,7 @@ window.addEventListener('appinstalled', () => { installPrompt = null; render(); 
 
 async function catalog() {
   try {
-    const response = await fetch('./api/catalog');
+    const response = await fetch(apiURL('/api/catalog'));
     if (!response.ok) throw new Error('API no disponible');
     const data = await response.json();
     await put('catalog', data, 'places');
@@ -36,10 +37,11 @@ async function catalog() {
   }
 }
 function placeCard(place, index, note) {
-  const tone = ['clay', 'sage', 'sky'][index % 3];
+  const scene = ['plaza-centro', 'museo-comunitario', 'mirador-bosque'].includes(place.id) ? place.id : 'plaza-centro';
+  const category = { 'plaza-centro': 'Paseo', 'museo-comunitario': 'Cultura', 'mirador-bosque': 'Naturaleza' }[place.id] || 'Explora';
   return '<a class="place-card" href="#/lugar/' + encodeURIComponent(place.id) + '">' +
-    '<div class="card-art tone-' + tone + '" aria-hidden="true"><span class="art-symbol">' + escapeHtml(place.name.charAt(0)) + '</span></div>' +
-    '<div class="card-body"><span class="eyebrow">Lugar ' + String(index + 1).padStart(2, '0') + '</span>' +
+    '<div class="card-art scene-' + scene + '" aria-hidden="true"><span class="card-index">' + String(index + 1).padStart(2, '0') + '</span></div>' +
+    '<div class="card-body"><span class="eyebrow">' + category + '</span>' +
     '<h3>' + escapeHtml(place.name) + '</h3><p>' + escapeHtml(place.description) + '</p>' +
     '<div class="card-bottom"><span>' + escapeHtml(note || place.duration) + '</span><span class="card-arrow" aria-hidden="true">↗</span></div></div></a>';
 }
@@ -60,21 +62,21 @@ function render() {
   } else if (page === 'lugar') {
     const place = places.find(item => item.id === id);
     app.innerHTML = place ? '<a class="back-link" href="#/catalogo">← Volver a lugares</a><div class="detail-layout">' +
-      '<article class="detail-card"><div class="detail-cover" aria-hidden="true"><span class="art-symbol">' + escapeHtml(place.name.charAt(0)) + '</span></div><div class="detail-content">' +
+      '<article class="detail-card"><div class="detail-cover scene-' + (['plaza-centro', 'museo-comunitario', 'mirador-bosque'].includes(place.id) ? place.id : 'plaza-centro') + '" aria-hidden="true"></div><div class="detail-content">' +
       '<span class="eyebrow">Ficha del lugar</span><h1>' + escapeHtml(place.name) + '</h1><p>' + escapeHtml(place.description) + '</p><span class="detail-meta">Tiempo sugerido: ' + escapeHtml(place.duration) + '</span>' +
-      (location.hostname.endsWith('github.io') ? '' : '<p><a class="text-link" href="./lugar/' + encodeURIComponent(place.id) + '">Ver ficha SSR ↗</a></p>') +
+      ('<p><a class="text-link" href="' + apiURL('/lugar/' + encodeURIComponent(place.id)) + '">Ver ficha SSR ↗</a></p>') +
       '</div></article><section class="review-panel"><h2>Reseñas</h2><div id="reviews"></div><form id="review-form" data-place="' + escapeHtml(place.id) + '">' +
       '<label for="review-text">Comparte tu experiencia</label><textarea id="review-text" maxlength="500" required placeholder="¿Qué te gustó de este lugar?"></textarea><button>Guardar reseña</button></form></section></div>'
       : '<div class="page-heading"><h1>Lugar no encontrado</h1><a class="text-link" href="#/catalogo">Volver al catálogo</a></div>';
   } else if (page === 'cerca') {
     app.innerHTML = '<div class="page-heading"><span class="eyebrow">Explora a tu alrededor</span><h1>Cerca de mí.</h1><p>Tu ubicación se usa solo cuando pulsas el botón y no se envía al servidor.</p><button id="locate">Buscar lugares cercanos</button></div><div id="nearby" class="nearby"></div>';
   } else {
-    app.innerHTML = '<section class="hero"><div class="hero-copy"><p class="eyebrow">Tu guía de lugares</p><h1>Sal a descubrir algo nuevo.</h1>' +
+    app.innerHTML = '<section class="hero"><div class="hero-copy"><p class="eyebrow">Pequeñas rutas, grandes historias</p><h1>Hay mucho por <em>descubrir.</em></h1>' +
       '<p class="hero-lead">Encuentra sitios para visitar, consulta detalles y guarda tus reseñas. Tu guía también viaja contigo sin conexión.</p>' +
       '<div class="hero-actions"><a class="button button-light" href="#/catalogo">Explorar lugares <span aria-hidden="true">↗</span></a>' +
       '<a class="button button-outline" href="#/cerca">Cerca de mí</a>' +
       (installPrompt ? '<button id="install" class="button-light">Instalar aplicación</button>' : '') + '</div></div>' +
-      '<div class="hero-art" aria-hidden="true"><div class="map-card"><div class="map-line"><span class="map-pin"><span>●</span></span></div><div class="map-card-caption"><span>UN LUGAR POR DESCUBRIR</span><span>↗</span></div></div><span class="hero-note">Explora a tu ritmo</span></div></section>' +
+      '<div class="hero-art" aria-hidden="true"><span class="hero-stamp">EXPLORA<br>LO CERCANO <span>↗</span></span><span class="hero-note">01 / 03 · Mirador del Bosque</span></div></section>' +
       '<div class="feature-strip"><div><span>01</span> Catálogo disponible offline</div><div><span>02</span> Reseñas guardadas en tu dispositivo</div><div><span>03</span> Lugares cerca de ti</div></div>' +
       '<section class="section-heading"><div><p class="eyebrow">Para empezar</p><h2>Elige tu próxima parada</h2><p>Tres ideas para salir de la rutina.</p></div><a class="text-link" href="#/catalogo">Ver todos los lugares ↗</a></section>' +
       '<div class="grid">' + places.slice(0, 3).map((place, index) => placeCard(place, index)).join('') + '</div>' +
@@ -89,7 +91,7 @@ async function showReviews(id) {
   if (!node) return;
   const local = await localReviews(id);
   let remote = [];
-  try { const response = await fetch('./api/reviews?placeId=' + encodeURIComponent(id)); if (response.ok) remote = await response.json(); } catch {}
+  try { const response = await fetch(apiURL('/api/reviews?placeId=' + encodeURIComponent(id))); if (response.ok) remote = await response.json(); } catch {}
   node.innerHTML = [...local.map(item => ({...item, pending: true})), ...remote].map(item => '<div class="review-card">' + escapeHtml(item.text) + (item.pending ? '<small>Pendiente de envío</small>' : '') + '</div>').join('') || '<p>Aún no hay reseñas.</p>';
 }
 function hydrateSSR() {

@@ -4,3 +4,7 @@ node_modules/
 coverage/
 data/reviews.json
 data/subscriptions.json
+
+.wrangler/
+.dev.vars
+cloudflare/dist/
