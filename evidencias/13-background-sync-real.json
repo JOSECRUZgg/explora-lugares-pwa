@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-18T20:54:46.490Z",
+  "scope": "Android Chrome localhost API",
+  "worker": {
+    "active": "activated"
+  },
+  "review": {
+    "id": "1a65798a-d4e4-495d-ac1d-f646f9d097d9",
+    "placeId": "plaza-centro",
+    "text": "Prueba Background Sync Android 1795035289865",
+    "createdAt": "2026-11-18T20:54:49.866Z"
+  },
+  "tags": [
+    "send-reviews"
+  ],
+  "received": true
+}

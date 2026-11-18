@@ -4,7 +4,7 @@ Autor: José Cruz Ramírez Fortanel.
 
 Actualizado: 18 de noviembre de 2026.
 
-Estado general: todas las fases están implementadas y tienen al menos un commit. Se comprobó también la recuperación de una reseña tras una caída del servidor; la instalación, el splash del sistema, el catálogo sin red y la notificación local ya se comprobaron en Android. Background Sync, geolocalización y entrega push siguen sin prueba concluyente. El backend público aún no está desplegado.
+Estado general: todas las fases están implementadas y tienen al menos un commit. Se comprobó también la recuperación de una reseña tras una caída del servidor; la instalación, el splash del sistema, el catálogo sin red y la notificación local ya se comprobaron en Android. Background Sync automático con API local y geolocalización en Android ya se comprobaron. La entrega push sigue sin prueba concluyente. El backend público aún no está desplegado.
 
 ## Herramientas
 - Node.js node --test para API y archivos servidos.
@@ -23,9 +23,9 @@ Estado general: todas las fases están implementadas y tienen al menos un commit
 | P06 | Push, acceso | POST /api/push/send sin token | Respuesta 403 | Automatizado: pasó |
 | P07 | Instalar | Abrir Pages en Android e instalar | App instalada con ícono y splash del sistema | Aprobado: WebAPK instalado, ventana standalone y splash capturados el 18/11/2026 |
 | P08 | Offline | Cargar una vez, activar modo avión y navegar | Shell y catálogo disponibles | Aprobado: catálogo visible en Android instalado con modo avión activo e indicador «Sin conexión» |
-| P09 | Sync | Crear reseña con servidor caído, reiniciarlo y reabrir app | Se envía y desaparece «pendiente» | Navegador: pasó por reintento al abrir; evento Background Sync sin verificar |
+| P09 | Sync | Guardar offline, registrar sync, cerrar página y restaurar red | Envío sin reabrir app | Aprobado en Android y API Node local: send-reviews registrado y reseña recibida |
 | P10 | Push | Suscribirse y enviar desde servidor | Notificación push visible y abre app | Pendiente: la notificación local sí apareció en Android; no hubo suscripción ni entrega push real |
-| P11 | Ubicación | Permitir ubicación en «Cerca de mí» | Lugares ordenados por distancia | Pendiente de prueba manual |
+| P11 | Ubicación | Conceder permiso real en Android | Lugares ordenados por distancia | Aprobado: 72.6, 119.0 y 119.1 km; figura 12 |
 | P12 | Actualización | Publicar versión nueva y recargar | Aviso «Actualizar» | Navegador: pasó |
 | P13 | Publicación | Abrir GitHub Pages | Inicio y catálogo visibles | Navegador: pasó |
 | P14 | Diseño escritorio | Abrir inicio y catálogo a 1280 px | Cabecera, portada, tarjetas y controles legibles | Navegador local: pasó |
@@ -137,7 +137,7 @@ El fallback automático simula una petición fallida; la prueba adicional del 18
 | 7.3 Indicador de conexión | Hecho | «Sin conexión» visible en Android con modo avión, figura 9 |
 | 8.1 API de reseñas | Hecho en Node | POST y GET con persistencia en prueba aislada |
 | 8.2 Guardar local primero | Hecho en prueba local | Reseña quedó pendiente con servidor detenido y llegó a la API al reabrir app |
-| 8.3 Evento sync | Parcial | Handler presente; falta comprobar envío al recuperar red |
+| 8.3 Evento sync | Hecho en Node local | send-reviews registrado offline y reseña recibida tras cerrar la página y restaurar red |
 | 9.1 skipWaiting y clients.claim | Hecho | Código presente y versión nueva activada en navegador |
 | 9.2 Aviso de actualización | Hecho | Aviso «Actualizar» observado y usado |
 | 10.1 Flujo push completo | Parcial | Componentes implementados; falta entrega real |
@@ -146,7 +146,7 @@ El fallback automático simula una petición fallida; la prueba adicional del 18
 | 10.4 notificaciones.js | Parcial | Permiso y notificación local observados, figura 10; push remoto pendiente |
 | 10.5 Evento push del SW | Parcial | Handler presente; recepción real no probada |
 | 11.1 Módulo dispositivo | Hecho | distanceKm pasó prueba automática |
-| 11.2 Cerca de mí | Parcial | Vista presente; permiso y orden con ubicación real pendientes |
+| 11.2 Cerca de mí | Hecho | Permiso real y distancias ordenadas en Android, figura 12 |
 | 11.3 Hidratación SSR | Hecho local | Formulario y reseñas visibles tras cargar HTML SSR |
 | 12.1 Herramientas | Hecho | Node test, navegador y herramientas manuales documentados |
 | 12.2 Casos de prueba | Parcial | Tabla P01–P24; P07 y P08 aprobadas en Android; P09 parcial; P10 y P11 pendientes |
@@ -191,3 +191,11 @@ La notificación local usa el permiso del dispositivo y no demuestra una entrega
 | `evidencias/09-android-offline-catalogo.png` | Catálogo en la PWA instalada con modo avión activo e indicador Sin conexión. | P08 |
 | `evidencias/10-android-notificacion-local.png` | Panel de Android con el aviso local de Explora Lugares. | Fase 10.4 |
 | `evidencias/11-chrome-offline-catalogo.png` | Chrome de escritorio en modo offline muestra los tres lugares. | P08 |
+
+## Verificación adicional de ubicación y Background Sync
+
+La ubicación real en Android mostró 72.6, 119.0 y 119.1 km en orden ascendente. Captura: `evidencias/12-android-ubicacion-real.png`. P11 aprobado.
+
+P09 aprobado en Android con API Node local: se guardó una reseña offline, se registró `send-reviews`, se navegó a `about:blank` y se restauró la red. El servidor recibió la reseña sin reabrir la app. No se inyectó un evento sync ni se invocó el reintento de la app tras recuperar conexión. Registro: `evidencias/13-background-sync-real.json`. Se probó el código local de trabajo; la API pública de Pages todavía no está desplegada. Estas pruebas sustituyen los estados antiguos de P09/P11 que aparecen en el historial de auditorías anterior.
+
+El push remoto sigue pendiente: Chrome Android devolvió `AbortError: Registration failed - push service error`; no se obtuvo una suscripción válida. La notificación local no se presenta como push remoto.
