@@ -2,9 +2,9 @@
 
 Autor: José Cruz Ramírez Fortanel.
 
-Actualizado: 12 de noviembre de 2026.
+Actualizado: 18 de noviembre de 2026.
 
-Estado general: todas las fases están implementadas y tienen al menos un commit. Se comprobó también la recuperación de una reseña tras una caída del servidor; instalación, red realmente desconectada, Background Sync, geolocalización y entrega push siguen sin prueba concluyente. El backend público aún no está desplegado.
+Estado general: todas las fases están implementadas y tienen al menos un commit. Se comprobó también la recuperación de una reseña tras una caída del servidor; la instalación, el splash del sistema, el catálogo sin red y la notificación local ya se comprobaron en Android. Background Sync, geolocalización y entrega push siguen sin prueba concluyente. El backend público aún no está desplegado.
 
 ## Herramientas
 - Node.js node --test para API y archivos servidos.
@@ -21,10 +21,10 @@ Estado general: todas las fases están implementadas y tienen al menos un commit
 | P04 | SSR | GET /lugar/plaza-centro | Ficha HTML con datos iniciales | Automatizado: pasó |
 | P05 | Reseña | POST y GET /api/reviews | La reseña persiste | Automatizado: pasó |
 | P06 | Push, acceso | POST /api/push/send sin token | Respuesta 403 | Automatizado: pasó |
-| P07 | Instalar | Abrir en HTTPS/localhost y usar «Instalar» | App instalada con ícono y splash del sistema | Pendiente de prueba manual |
-| P08 | Offline | Cargar una vez, detener servidor local y navegar | Shell y catálogo disponibles | Navegador: pasó con servidor caído; falta prueba sin red real |
+| P07 | Instalar | Abrir Pages en Android e instalar | App instalada con ícono y splash del sistema | Aprobado: WebAPK instalado, ventana standalone y splash capturados el 18/11/2026 |
+| P08 | Offline | Cargar una vez, activar modo avión y navegar | Shell y catálogo disponibles | Aprobado: catálogo visible en Android instalado con modo avión activo e indicador «Sin conexión» |
 | P09 | Sync | Crear reseña con servidor caído, reiniciarlo y reabrir app | Se envía y desaparece «pendiente» | Navegador: pasó por reintento al abrir; evento Background Sync sin verificar |
-| P10 | Push | Suscribirse y enviar desde servidor | Notificación visible y abre app | Pendiente de prueba manual |
+| P10 | Push | Suscribirse y enviar desde servidor | Notificación push visible y abre app | Pendiente: la notificación local sí apareció en Android; no hubo suscripción ni entrega push real |
 | P11 | Ubicación | Permitir ubicación en «Cerca de mí» | Lugares ordenados por distancia | Pendiente de prueba manual |
 | P12 | Actualización | Publicar versión nueva y recargar | Aviso «Actualizar» | Navegador: pasó |
 | P13 | Publicación | Abrir GitHub Pages | Inicio y catálogo visibles | Navegador: pasó |
@@ -32,7 +32,7 @@ Estado general: todas las fases están implementadas y tienen al menos un commit
 | P15 | Diseño móvil | Abrir inicio y catálogo a 375 px | Navegación visible y sin desplazamiento horizontal | Navegador local: pasó |
 | P16 | Diseño intermedio | Abrir ficha a 768 px | Sin desplazamiento horizontal y navegación de 44 px | Navegador local: pasó |
 | P17 | Ficha SSR visual | Abrir /lugar/plaza-centro en servidor local | Ficha y reseñas hidratadas con el nuevo diseño | Navegador local: pasó |
-| P18 | Página offline visual | Abrir offline.html directamente | Mensaje y regreso al inicio legibles | Navegador local: pasó; red offline aún pendiente |
+| P18 | Página offline visual | Abrir offline.html directamente | Mensaje y regreso al inicio legibles | Navegador local: pasó; P08 también se verificó con modo avión real |
 | P19 | Fallback offline | Abrir ficha SSR no guardada con servidor caído | Redirección a /offline.html y enlace correcto al inicio | Automatizado y navegador: pasó |
 | P20 | Distancia | Comparar coordenadas iguales y separadas un grado | 0 km y más de 100 km, respectivamente | Automatizado: pasó |
 | P21 | Suscripción push | POST válido e inválido al servidor de prueba | 201 y persistencia; 400 para entrada inválida | Automatizado: pasó |
@@ -74,12 +74,9 @@ GitHub Pages solo sirve archivos estáticos. La ficha SSR, el envío de reseñas
 
 ## Pendientes para cumplimiento total
 
-1. Probar instalación y splash del sistema en un navegador compatible.
-2. Probar navegación sin red real con DevTools o un dispositivo; la caída del servidor local ya se comprobó.
-3. Probar específicamente el evento Background Sync tras recuperar la red; el reintento al abrir la app ya se comprobó.
-4. Desplegar la API Node.js en HTTPS, conectarla a la versión de Pages y comprobar SSR, reseñas y push reales.
-5. Probar geolocalización en un dispositivo compatible: se autorizó el permiso, pero el navegador de prueba no devolvió coordenadas.
-6. Completar P07–P11 en un navegador compatible y registrar evidencia de instalación, permiso de notificaciones y entrega push.
+1. Probar específicamente el evento Background Sync tras recuperar la red; el reintento al abrir la app ya se comprobó.
+2. Verificar la geolocalización y la ordenación por distancia en el dispositivo.
+3. Desplegar la API Node.js en HTTPS, conectarla a la versión de Pages y comprobar SSR, reseñas y push reales.
 
 ## Mejora visual · 1 de noviembre de 2026
 
@@ -87,7 +84,7 @@ Se rediseñaron el inicio, el catálogo, la ficha, la página offline y la naveg
 
 Los elementos visuales usan CSS y SVG local, por lo que no requieren recursos externos para aparecer sin conexión. Se añadieron estados de foco visibles, áreas de navegación de 44 px, espacio para la barra móvil y ajuste para movimiento reducido. La actualización incrementó la versión del service worker para renovar el shell.
 
-Verificación visual en navegador local: portada y catálogo a 1280 px; portada y catálogo a 375 px; ficha a 768 px; ficha SSR con reseñas hidratadas; página offline abierta directamente. A 375 px, el documento midió 360 px de ancho desplazable frente a 375 px de ventana. A 768 px midió 753 px frente a 768 px. En ambos tamaños los enlaces de navegación midieron 44 px de alto. Estas pruebas no sustituyen P07–P11, que siguen pendientes.
+Verificación visual en navegador local: portada y catálogo a 1280 px; portada y catálogo a 375 px; ficha a 768 px; ficha SSR con reseñas hidratadas; página offline abierta directamente. A 375 px, el documento midió 360 px de ancho desplazable frente a 375 px de ventana. A 768 px midió 753 px frente a 768 px. En ambos tamaños los enlaces de navegación midieron 44 px de alto. Las pruebas de diseño precedieron a las pruebas reales de P07 y P08 del 18 de noviembre; P09, P10 y P11 mantienen límites funcionales.
 
 ## Auditoría fase por fase · 1 de noviembre de 2026
 
@@ -95,20 +92,20 @@ Verificación visual en navegador local: portada y catálogo a 1280 px; portada 
 |---|---|---|
 | 0 · Entorno | Node.js 24, npm 11, Git; package.json, dependencia web-push, .gitignore y servidor probado | Comprobada |
 | 1 · App shell | index.html y styles.css; inicio visible en escritorio y móvil | Comprobada |
-| 2 · Manifiesto | manifest.json e íconos PNG medidos en 192×192 y 512×512 | Comprobada como implementación; instalación aún sin probar |
+| 2 · Manifiesto | manifest.json e íconos PNG medidos en 192×192 y 512×512 | Comprobada; instalación real acreditada el 18/11/2026 |
 | 3 · Service worker | Registro en app.js y eventos install, activate y fetch; aviso de actualización observado | Comprobada |
 | 4 · CSR y SSR | Catálogo de tres lugares, navegación CSR y ficha SSR probados con Node y navegador | Comprobada |
-| 5 · Splash y Home | Splash interno e inicio vistos; botón de instalación condicionado al navegador | Parcial: falta instalación y splash del sistema |
-| 6 · Datos locales | IndexedDB y preferencias implementados; catálogo disponible con servidor caído; vista compacta persistió tras recarga | Parcial: falta inspección directa de IndexedDB sin red real |
-| 7 · Caché y offline | Tres estrategias presentes; shell, catálogo y redirección offline.html probados con servidor caído | Parcial: falta navegación con red realmente desconectada |
+| 5 · Splash y Home | Splash interno e inicio vistos; botón de instalación condicionado al navegador | Comprobada en Android: instalación y ambos splash |
+| 6 · Datos locales | IndexedDB y preferencias implementados; catálogo disponible con servidor caído; vista compacta persistió tras recarga | Parcial: catálogo offline observado; falta inspección directa del store |
+| 7 · Caché y offline | Tres estrategias presentes; shell, catálogo y redirección offline.html probados con servidor caído | Comprobada en Android con modo avión activo |
 | 8 · Reseñas y Sync | Reseña guardada con servidor caído y enviada al reabrir la app; API persistió y la etiqueta pendiente desapareció | Parcial: falta observar el evento Background Sync al volver la red |
 | 9 · Actualización | skipWaiting, clients.claim y aviso «Actualizar» comprobados en navegador | Comprobada |
-| 10 · Notificaciones | Claves VAPID locales excluidas de Git; API guarda suscripciones válidas y rechaza inválidas | Parcial: faltan notificación local y entrega push reales |
+| 10 · Notificaciones | Claves VAPID locales excluidas de Git; API guarda suscripciones válidas y rechaza inválidas | Parcial: notificación local observada; entrega push pendiente |
 | 11 · Dispositivo e hidratación | Distancia probada; ficha SSR hidratada en navegador local | Parcial: falta probar permiso y ubicación real |
-| 12 · Pruebas | Tabla P01–P24 y tres pruebas automáticas aprobadas | Parcial: P07, P10, P11 y pruebas de red/Sync reales pendientes |
+| 12 · Pruebas | Tabla P01–P24 y tres pruebas automáticas aprobadas | Parcial: P09, P10 y P11 pendientes; P07 y P08 comprobadas |
 | 13 · Publicación | Repositorio, Pages y actualización previa comprobados; existe workflow de publicación | Comprobada |
 
-La prueba automática del fallback solo simula una petición fallida en el service worker; no sustituye la prueba de navegación offline en un navegador. La prueba de suscripciones no envía una notificación push. GitHub Pages no ejecuta server.js, por lo que SSR, sincronización con servidor y push requieren alojar esa API en HTTPS.
+El fallback automático simula una petición fallida; la prueba adicional del 18 de noviembre sí confirma el catálogo en un Android sin red. La prueba de suscripciones no envía una notificación push. GitHub Pages no ejecuta server.js, por lo que SSR, sincronización con servidor y push requieren alojar esa API en HTTPS.
 
 ## Verificación de cada apartado de la guía
 
@@ -129,15 +126,15 @@ La prueba automática del fallback solo simula una petición fallida en el servi
 | 4.1 Catálogo remoto | Hecho | GET /api/catalog devuelve tres lugares en Node |
 | 4.2 CSR | Hecho | Inicio, catálogo y ficha navegados en Pages |
 | 4.3 SSR | Hecho en Node | HTML inicial y ficha local comprobados; Pages no ejecuta Node |
-| 5.1 Splash del sistema | Pendiente | Requiere instalar la PWA en un dispositivo compatible |
-| 5.2 Splash de la app | Hecho | Animación interna visible en navegador |
-| 5.3 Home e instalación | Parcial | Home funciona; botón depende de beforeinstallprompt y falta prueba de instalación |
+| 5.1 Splash del sistema | Hecho | Captura de Android al abrir el WebAPK: figura 7 del Word |
+| 5.2 Splash de la app | Hecho | Captura del splash interno en Android: figura 8 |
+| 5.3 Home e instalación | Hecho | WebAPK instalado y ventana standalone en figuras 5 y 6 |
 | 6.1 IndexedDB | Parcial | Capa y stores creados en código; falta inspección del almacenamiento con red desconectada |
 | 6.2 localStorage | Hecho | Vista compacta persistió tras recarga |
-| 6.3 Respaldo del catálogo | Parcial | Catálogo disponible con servidor detenido; falta aislar y verificar IndexedDB con red real desconectada |
+| 6.3 Respaldo del catálogo | Hecho | Catálogo visible en Android con modo avión activo, figura 9 |
 | 7.1 offline.html | Hecho | Página renderizada y verificada visualmente |
-| 7.2 Tres estrategias de caché | Parcial | Navegación, datos y shell implementados; caída del servidor y redirección a offline.html probadas; falta prueba sin red real |
-| 7.3 Indicador de conexión | Parcial | Estado «En línea» visible; falta observar transición sin red |
+| 7.2 Tres estrategias de caché | Hecho | Shell y catálogo visibles sin red real; fallback probado por separado |
+| 7.3 Indicador de conexión | Hecho | «Sin conexión» visible en Android con modo avión, figura 9 |
 | 8.1 API de reseñas | Hecho en Node | POST y GET con persistencia en prueba aislada |
 | 8.2 Guardar local primero | Hecho en prueba local | Reseña quedó pendiente con servidor detenido y llegó a la API al reabrir app |
 | 8.3 Evento sync | Parcial | Handler presente; falta comprobar envío al recuperar red |
@@ -146,13 +143,13 @@ La prueba automática del fallback solo simula una petición fallida en el servi
 | 10.1 Flujo push completo | Parcial | Componentes implementados; falta entrega real |
 | 10.2 Claves VAPID | Hecho local | Claves generadas en .env, no versionadas |
 | 10.3 Servidor push | Parcial | Suscripciones guardadas y validadas; envío real no probado |
-| 10.4 notificaciones.js | Parcial | Módulo implementado; permiso/notificación pendientes |
+| 10.4 notificaciones.js | Parcial | Permiso y notificación local observados, figura 10; push remoto pendiente |
 | 10.5 Evento push del SW | Parcial | Handler presente; recepción real no probada |
 | 11.1 Módulo dispositivo | Hecho | distanceKm pasó prueba automática |
 | 11.2 Cerca de mí | Parcial | Vista presente; permiso y orden con ubicación real pendientes |
 | 11.3 Hidratación SSR | Hecho local | Formulario y reseñas visibles tras cargar HTML SSR |
 | 12.1 Herramientas | Hecho | Node test, navegador y herramientas manuales documentados |
-| 12.2 Casos de prueba | Parcial | Tabla P01–P24 presente; P07, P10 y P11 pendientes, P08 y P09 probadas parcialmente |
+| 12.2 Casos de prueba | Parcial | Tabla P01–P24; P07 y P08 aprobadas en Android; P09 parcial; P10 y P11 pendientes |
 | 13.1 Repositorio GitHub | Hecho | Rama main y commits para todas las fases |
 | 13.2 GitHub Pages | Hecho | URL pública abre la PWA |
 | 13.3 Alcance de Pages | Hecho | Límites del hosting estático documentados |
@@ -162,13 +159,13 @@ La prueba automática del fallback solo simula una petición fallida en el servi
 
 En el navegador de prueba, con el servidor local en el puerto 3193 y el service worker instalado, se detuvo Node.js. El inicio y el catálogo siguieron disponibles. En la ficha de Plaza del Centro se guardó «Prueba de recuperación 3193» y apareció «Pendiente de envío». Al abrir la ficha SSR sin guardar, la aplicación redirigió a `/offline.html`; el enlace «Volver al inicio» apuntó a `/`.
 
-Después de reiniciar el servidor y reabrir la aplicación, la reseña se encontró en el archivo JSON aislado de pruebas y se mostró en la ficha sin «Pendiente de envío». Esto valida el almacenamiento local y el reintento al abrir la app. El equipo conservó conexión de red durante la prueba; por ello no valida el indicador `navigator.onLine` ni la activación del evento Background Sync por el navegador. Las pruebas de ubicación y notificación local se intentaron con autorización del usuario, pero el navegador de prueba no entregó coordenadas ni mostró un aviso verificable; no se marcan como aprobadas.
+Después de reiniciar el servidor y reabrir la aplicación, la reseña se encontró en el archivo JSON aislado de pruebas y se mostró en la ficha sin «Pendiente de envío». Esto valida el almacenamiento local y el reintento al abrir la app. El equipo conservó conexión de red durante la prueba; por ello no valida el indicador `navigator.onLine` ni la activación del evento Background Sync por el navegador. La ubicación no devolvió coordenadas en ese navegador. La notificación local sí se observó después en Android el 18 de noviembre y se documenta abajo.
 
 La prueba detectó dos fallos y se corrigieron: la página offline conservaba una URL de ficha que rompía los enlaces relativos, y el estado visual de una reseña ya enviada podía quedarse en «Pendiente». El service worker ahora redirige a su página offline y la vista se actualiza tras el envío desde la app o desde el worker.
 
-## Evidencia visual y límites de la revisión · 12 de noviembre de 2026
+## Evidencia visual y límites de la revisión · 18 de noviembre de 2026
 
-El Word `REPORTE_PWA_Jose_Cruz_Ramirez_Fortanel_ENTREGA.docx` usa la portada original y desarrolla las fases 0–13 con fragmentos de código. Incluye la matriz P01–P24 y estas capturas de la aplicación publicada:
+El Word `REPORTE_PWA_Jose_Cruz_Ramirez_Fortanel_ENTREGA.docx` usa la portada original y desarrolla las fases 0–13 con fragmentos de código. Incluye la matriz P01–P24, cuatro capturas iniciales de la aplicación publicada y siete capturas adicionales del 18 de noviembre:
 
 | Archivo | Observación comprobada | No demuestra |
 |---|---|---|
@@ -177,4 +174,20 @@ El Word `REPORTE_PWA_Jose_Cruz_Ramirez_Fortanel_ENTREGA.docx` usa la portada ori
 | `evidencias/03-catalogo-publicado.png` | Catálogo CSR | Respuesta de la API Node pública |
 | `evidencias/04-ficha-publicada.png` | Ficha y formulario | Reseña enviada al servidor |
 
-En Chrome de la laptop apareció el botón «Instalar aplicación», pero la instalación no pudo confirmarse con una ventana standalone. La notificación local y la ubicación tampoco dieron una respuesta observable. La entrega push real requiere desplegar la API Node HTTPS; el alojamiento de ese backend quedó pospuesto. P07, P10 y P11 permanecen pendientes. P08 y P09 cuentan con evidencia parcial de caída y recuperación del servidor, no de desconexión física o evento Background Sync real. Estas pruebas no se presentan como simulaciones aprobadas.
+El primer intento en Chrome de la laptop no confirmó la instalación ni una notificación visible. Las pruebas posteriores en Android sí acreditaron P07, P08 y una notificación local. La geolocalización, el evento Background Sync automático y la entrega push no se observaron; P09 sigue parcial y P10–P11 pendientes. El backend público HTTPS quedó pospuesto.
+
+## Evidencia real en Android y Chrome, 18 de noviembre de 2026
+
+Se usó un Xiaomi 23117RA68G con Android 16. Android registró el WebAPK `org.chromium.webapk.ab105a8462e8955b3_v2`, instalado el 18/11/2026 a las 14:27:30. Se abrió sin la barra de Chrome; la grabación de pantalla permitió extraer fotogramas del splash del sistema y del splash interno. Con `airplane_mode_on=1`, el teléfono mostró el catálogo y «Sin conexión». Tras recuperar la red, el panel de Android mostró «Explora Lugares: Tus lugares están listos para consultar». La prueba de Chrome de escritorio también mostró los tres lugares sin red.
+
+La notificación local usa el permiso del dispositivo y no demuestra una entrega push desde el servidor. Se intentó suscribir el Android al servicio push: el permiso era `granted` y el service worker estaba activo, pero Chrome devolvió `AbortError: Registration failed - push service error`. Por ello P10 sigue pendiente. La API pública HTTPS todavía no está desplegada.
+
+| Archivo | Evidencia | Alcance |
+|---|---|---|
+| `evidencias/05-android-app-instalada.png` | Android muestra Explora Lugares instalado y las notificaciones habilitadas. | P07, P10 local |
+| `evidencias/06-android-ventana-standalone.png` | La PWA se abrió como aplicación independiente, sin barra de Chrome. | P07 |
+| `evidencias/07-android-splash-sistema.png` | Fotograma del splash de Android al abrir el WebAPK. | Fase 5.1 |
+| `evidencias/08-android-splash-app.png` | Fotograma del splash interno de Explora Lugares. | Fase 5.2 |
+| `evidencias/09-android-offline-catalogo.png` | Catálogo en la PWA instalada con modo avión activo e indicador Sin conexión. | P08 |
+| `evidencias/10-android-notificacion-local.png` | Panel de Android con el aviso local de Explora Lugares. | Fase 10.4 |
+| `evidencias/11-chrome-offline-catalogo.png` | Chrome de escritorio en modo offline muestra los tres lugares. | P08 |
